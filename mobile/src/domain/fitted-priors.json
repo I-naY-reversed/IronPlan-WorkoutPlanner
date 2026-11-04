@@ -1,0 +1,344 @@
+{
+  "generated_by": "analysis/scripts/assemble_priors.py",
+  "model": {
+    "a0": {
+      "value": {
+        "male": {
+          "new": 0.022643617238423723,
+          "some": 0.0016492244700791203,
+          "experienced": 0.00032894083275309115
+        },
+        "female": {
+          "new": 0.022643617238423723,
+          "some": 0.0030197319123332765,
+          "experienced": 0.00043704197179815995
+        }
+      },
+      "source": "new: Pelland et al. (OSF 6z3xu) multilevel fit, untrained weekly strength gain at saturating volume; some/experienced: OpenPowerlifting within-person curves (careers \u22658 y), headroom \u00f7 time constant"
+    },
+    "headroom_median": {
+      "value": {
+        "male": {
+          "new": 0.2250408323535181,
+          "some": 0.16135005518678752,
+          "experienced": 0.03218156320185626
+        },
+        "female": {
+          "new": 0.3392329756818554,
+          "some": 0.2432236797874154,
+          "experienced": 0.035201454860329495
+        }
+      },
+      "source": "OpenPowerlifting within-person curves: some = headroom from first meet, experienced = headroom left 3 years later; new = some \u00f7 (1+\u03b4), \u03b4 = trained vs untrained rate (Pelland fit)"
+    },
+    "log_headroom_sd": {
+      "value": {
+        "male": 0.9427772021533947,
+        "female": 0.7670230556642432
+      },
+      "source": "OpenPowerlifting: sd of log individual headroom, careers \u22653 y with \u22655 meets"
+    },
+    "k_median": {
+      "value": 1.1440091829749008,
+      "ci95": [
+        0.7245370394076246,
+        1.8804644922812477
+      ],
+      "source": "Pelland et al. multilevel strength fit: weekly fractional sets where returns flatten"
+    },
+    "log_k_sd": {
+      "value": 0.2528360408225279,
+      "source": "Pelland fit, study-bootstrap sd of log k (population uncertainty; individual variation in k is not identifiable from aggregate trials)"
+    },
+    "log_rho_sd": {
+      "value": 0.18453038679253703,
+      "ci95": [
+        0.15043250421849516,
+        0.23861274761612097
+      ],
+      "sensitivity": {
+        "n": 35,
+        "sd_log_rho": 0.4152637187167809
+      },
+      "source": "Steele et al. 2023 data (CC-BY 4.0): individual-response SD in RCT strength outcomes relative to mean change"
+    },
+    "sigma_median": {
+      "value": 0.04114194333117521,
+      "source": "Grgic et al. 2020: median 1RM test-retest CV 4.2% (32 studies, n=1595)"
+    },
+    "log_sigma_sd": {
+      "value": 0.7965881582906602,
+      "source": "Grgic et al. 2020 CV range 0.5\u201312.1% treated as \u00b12 sd on the log scale"
+    },
+    "process_sd": {
+      "value": 0.004022894910279594,
+      "source": "OpenPowerlifting: weekly drift from consecutive-meet residual changes vs gap, pooled across sexes"
+    }
+  },
+  "effort": {
+    "report_bias": {
+      "value": 0.95,
+      "ci95": [
+        0.17,
+        1.73
+      ],
+      "source": "Halperin et al. meta-analysis: reps to failure under-predicted by 0.95 (12 studies, n=414)"
+    },
+    "strength_slope_per_rir": {
+      "value": 0.003634817691525798,
+      "ci95": [
+        -0.019311342624888147,
+        0.03269870508963788
+      ],
+      "source": "Robinson et al. 2024 (OSF 7knsj) multilevel fit: strength gain vs estimated RIR"
+    },
+    "hypertrophy_slope_per_rir": {
+      "value": -0.060028045190047084,
+      "ci95": [
+        -0.09472341563649164,
+        -0.029050155347866948
+      ],
+      "source": "Robinson et al. 2024 multilevel fit: hypertrophy gain vs estimated RIR"
+    },
+    "missing_rir": {
+      "value": 2.8442458205000003,
+      "source": "Robinson et al. 2024: median estimated RIR across strength-trial groups"
+    }
+  },
+  "volume": {
+    "strength_sets_90pct": {
+      "value": 2.6341784909663044,
+      "ci95": [
+        1.6683081862620361,
+        4.329929507831418
+      ],
+      "source": "Pelland fit: weekly fractional sets reaching 90% of the maximal volume-driven strength gain"
+    },
+    "hypertrophy_median_studied": {
+      "value": 10.5,
+      "source": "Pelland data: median weekly sets (indirect weighted by w) in hypertrophy groups (no plateau identifiable up to 45)"
+    },
+    "strength_session_ceiling": {
+      "value": 1.25,
+      "ci95_profile": [
+        0.5,
+        2.5
+      ],
+      "lr_vs_none": 11.43,
+      "boot_p": 0.004975124378109453,
+      "boot_n": 200,
+      "weights": [
+        {
+          "c": 0.5,
+          "w": 0.05462364843176334
+        },
+        {
+          "c": 0.75,
+          "w": 0.13698103662167713
+        },
+        {
+          "c": 1.0,
+          "w": 0.2084424732967123
+        },
+        {
+          "c": 1.25,
+          "w": 0.21980236974828063
+        },
+        {
+          "c": 1.5,
+          "w": 0.18508811891941182
+        },
+        {
+          "c": 2.0,
+          "w": 0.09677977727492665
+        },
+        {
+          "c": 2.5,
+          "w": 0.04658104152557685
+        },
+        {
+          "c": 3.0,
+          "w": 0.02421347346499297
+        },
+        {
+          "c": 4.0,
+          "w": 0.009180007471108037
+        },
+        {
+          "c": 5.0,
+          "w": 0.004973327115901494
+        },
+        {
+          "c": 6.0,
+          "w": 0.003350241664948962
+        },
+        {
+          "c": 8.0,
+          "w": 0.0021223993526943226
+        },
+        {
+          "c": 10.0,
+          "w": 0.0016555261246997575
+        },
+        {
+          "c": 12.0,
+          "w": 0.0014181494717769871
+        },
+        {
+          "c": 15.0,
+          "w": 0.001224620860026211
+        },
+        {
+          "c": 20.0,
+          "w": 0.0010651351623974356
+        }
+      ],
+      "source": "Pelland et al. data, fit_session.py: sets per session where the strength stimulus saturates (dose = \u03a3 sessions c\u00b7(1 \u2212 e^(\u2212sets/c))). Likely reflects practice of the tested lift as well as physiology."
+    },
+    "hypertrophy_session_ceiling": {
+      "value": null,
+      "lower_profile": 12.0,
+      "source": "fit_session.py: no per-session ceiling for hypertrophy; ceilings under ~12 sets per session were rejected."
+    },
+    "indirect_set_weight": {
+      "value": 0.4,
+      "ci95": [
+        0.0,
+        0.8137500000000003
+      ],
+      "strength": {
+        "value": 0.4,
+        "ci95": [
+          0.0,
+          1.0
+        ]
+      },
+      "source": "Pelland et al. data, fit_indirect.py: how much a set counts for a muscle it trains indirectly (direct = 1). The 0.5 convention lies inside the interval; the data cannot separate the two."
+    },
+    "hypertrophy_curve_note": "Hypertrophy rose roughly linearly across 0\u201345 weekly sets in the within- and between-study fit; k was not identifiable."
+  },
+  "timing": {
+    "minutes_per_set": {
+      "value": 2.5,
+      "source": "Pelland data: median inter-set rest 2.0 min (IQR 1.5\u20132.0, 572 groups) + ~30 s for a 10-rep set (median reps 10; ~3 s/rep assumed)"
+    }
+  },
+  "starting_strength": {
+    "source": "Pelland et al. (OSF 6z3xu) and Steele et al. 2023 pre-training 1RMs; log(1RM/body mass) regression; sex gap and deadlift/squat ratio from OpenPowerlifting",
+    "model": "log(1RM/body mass) = intercept[exercise] + sex_gap[region]\u00b7male + trained\u00b7[experience \u2260 new] + age_per_decade\u00b7(age\u221225)/10",
+    "sex_gap_log": {
+      "upper": 0.4470519708073228,
+      "lower": 0.2685887694342204
+    },
+    "trained": 0.26309856578906676,
+    "age_per_decade": -0.10453968453837195,
+    "exercises": {
+      "back_squat": {
+        "intercept": 0.07387556283481603,
+        "sd": 0.5059872785110929,
+        "n_groups": 88
+      },
+      "barbell_bench_press": {
+        "intercept": -0.6165053723177413,
+        "sd": 0.5095979838655359,
+        "n_groups": 166
+      },
+      "biceps_curl": {
+        "intercept": -1.2029240421557261,
+        "sd": 0.5232555423424384,
+        "n_groups": 76
+      },
+      "cable_row": {
+        "intercept": -0.3328283269981553,
+        "sd": 0.5077796693804364,
+        "n_groups": 19
+      },
+      "calf_raise": {
+        "intercept": 0.2754681015202658,
+        "sd": 0.5380325581935158,
+        "n_groups": 2
+      },
+      "chest_press_machine": {
+        "intercept": -0.308600741086632,
+        "sd": 0.5585113191772102,
+        "n_groups": 42
+      },
+      "deadlift": {
+        "intercept": 0.10750725295842889,
+        "sd": 0.525885905035051,
+        "n_groups": 2
+      },
+      "dumbbell_shoulder_press": {
+        "intercept": -1.7625468822287544,
+        "sd": 0.6939864996205884,
+        "n_groups": 2
+      },
+      "hack_squat": {
+        "intercept": -0.22579203220032104,
+        "sd": 0.7104177669091328,
+        "n_groups": 4
+      },
+      "lat_pulldown": {
+        "intercept": -0.4499005401099021,
+        "sd": 0.52241312632002,
+        "n_groups": 56
+      },
+      "lateral_raise": {
+        "intercept": -1.9177833426183906,
+        "sd": 0.6046154253657164,
+        "n_groups": 2
+      },
+      "leg_curl": {
+        "intercept": -0.49249888927014807,
+        "sd": 0.5740402369293607,
+        "n_groups": 38
+      },
+      "leg_extension": {
+        "intercept": 0.004140304935897491,
+        "sd": 0.5269106861574013,
+        "n_groups": 161
+      },
+      "leg_press": {
+        "intercept": 0.7165670052764402,
+        "sd": 0.5085457649803734,
+        "n_groups": 128
+      },
+      "romanian_deadlift": {
+        "intercept": -0.04305772017029954,
+        "sd": 0.6450456997423935,
+        "n_groups": 2
+      },
+      "shoulder_press_machine": {
+        "intercept": -0.8271759022925353,
+        "sd": 0.5525015003641265,
+        "n_groups": 40
+      },
+      "triceps_pushdown": {
+        "intercept": -0.9469308125867643,
+        "sd": 0.5863535900153046,
+        "n_groups": 30
+      }
+    },
+    "deadlift_to_squat": {
+      "male": {
+        "median_ratio": 1.1578947368421053,
+        "log_sd": 0.13712000928241,
+        "n": 407111
+      },
+      "female": {
+        "median_ratio": 1.2,
+        "log_sd": 0.14418599362282664,
+        "n": 198334
+      }
+    }
+  },
+  "decisions": [
+    "Starting loads by analogy (e.g. incline bench from flat bench) add 0.25 to the log-scale 1\u03c3; penalty arbitrary.",
+    "Experience \"1\u20133 years\" and \"3+ years\" both use the trial \"trained\" strength level; no data separates them.",
+    "Default weekly sets per muscle: strength and general goals use the volume reaching 90% of the fitted strength curve (one more set adds <10% of the first set\u2019s gain); the muscle goal uses the median studied hypertrophy volume because no plateau is identifiable.",
+    "Experience mapping for OpenPowerlifting: \"1\u20133 years\" \u2248 first competition, \"3+ years\" \u2248 three years of competing later.",
+    "Novice headroom assumes the same approach time constant as trained lifters, scaled by the trial-measured untrained/trained rate ratio.",
+    "Strength effort weighting is flat: the Robinson strength slope is indistinguishable from zero.",
+    "Sport muscle priorities for coaches, not fitted."
+  ]
+}

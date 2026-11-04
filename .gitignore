@@ -1,0 +1,11 @@
+dist/
+comparison.md
+DESIGN.md
+analysis/
+docs/
+!mobile/docs/
+mobile/docs/*
+!mobile/docs/licenses/
+mobile/README.md
+mobile/.vscode
+store-listing/

@@ -1,0 +1,111 @@
+{
+ "source": "OpenIPF snapshot 2026-10-17: best classic lift at IPF and regional championships since 2019, 4th attempts included",
+ "classes": {
+  "M": [
+   "59",
+   "66",
+   "74",
+   "83",
+   "93",
+   "105",
+   "120",
+   "120+"
+  ],
+  "F": [
+   "47",
+   "52",
+   "57",
+   "63",
+   "69",
+   "76",
+   "84",
+   "84+"
+  ]
+ },
+ "records": {
+  "M": {
+   "59": {
+    "squat": 240.5,
+    "bench": 180.5,
+    "deadlift": 303.0
+   },
+   "66": {
+    "squat": 275.5,
+    "bench": 221.0,
+    "deadlift": 310.0
+   },
+   "74": {
+    "squat": 340.0,
+    "bench": 230.0,
+    "deadlift": 344.0
+   },
+   "83": {
+    "squat": 322.5,
+    "bench": 233.0,
+    "deadlift": 383.0
+   },
+   "93": {
+    "squat": 355.5,
+    "bench": 246.0,
+    "deadlift": 380.0
+   },
+   "105": {
+    "squat": 393.0,
+    "bench": 261.0,
+    "deadlift": 400.0
+   },
+   "120": {
+    "squat": 393.0,
+    "bench": 266.0,
+    "deadlift": 401.0
+   },
+   "120+": {
+    "squat": 460.0,
+    "bench": 300.0,
+    "deadlift": 411.0
+   }
+  },
+  "F": {
+   "47": {
+    "squat": 170.5,
+    "bench": 105.0,
+    "deadlift": 212.5
+   },
+   "52": {
+    "squat": 182.5,
+    "bench": 114.0,
+    "deadlift": 220.5
+   },
+   "57": {
+    "squat": 200.0,
+    "bench": 123.5,
+    "deadlift": 238.0
+   },
+   "63": {
+    "squat": 213.0,
+    "bench": 143.5,
+    "deadlift": 241.5
+   },
+   "69": {
+    "squat": 227.0,
+    "bench": 150.0,
+    "deadlift": 255.0
+   },
+   "76": {
+    "squat": 238.0,
+    "bench": 155.5,
+    "deadlift": 263.0
+   },
+   "84": {
+    "squat": 249.0,
+    "bench": 155.5,
+    "deadlift": 270.0
+   },
+   "84+": {
+    "squat": 318.0,
+    "bench": 167.0,
+    "deadlift": 292.5
+   }
+  }
+ }
+}
