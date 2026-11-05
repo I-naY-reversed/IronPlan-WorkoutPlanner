@@ -1,4 +1,4 @@
-import type { EquipmentKind } from './equipment';
+import { preferenceRank, type EquipmentKind, type LoadPreference } from './equipment';
 import FITTED from './fitted-priors.json';
 
 export const INDIRECT_SET_WEIGHT: number = FITTED.volume.indirect_set_weight.value;
@@ -132,6 +132,8 @@ const TABLE: Exercise[] = [
     muscles: { quads: 1, glutes: 0.5 } },
   { id: 'bulgarian_split_squat', name: 'Bulgarian Split Squat', heavyCompound: false, requires: NONE,
     muscles: { quads: 1, glutes: 1, adductors: 0.5 }, aliases: ['split squat', 'lunge', 'walking lunge'] },
+  { id: 'dumbbell_split_squat', name: 'Split Squat (Dumbbell)', heavyCompound: false, requires: [['dumbbells'], ['kettlebell']],
+    muscles: { quads: 1, glutes: 1, adductors: 0.5 }, aliases: ['dumbbell split squat', 'dumbbell bulgarian split squat', 'dumbbell lunge', 'weighted split squat'] },
   { id: 'leg_extension', name: 'Leg Extension', heavyCompound: false, requires: [['leg_extension']],
     muscles: { quads: 1 } },
   { id: 'sled_push', name: 'Sled Push', heavyCompound: false, requires: [['sled']],
@@ -152,6 +154,8 @@ const TABLE: Exercise[] = [
     muscles: { calves: 1 }, aliases: ['calf raise', 'single leg calf raise', 'standing calf raise bodyweight'] },
   { id: 'machine_calf_raise', name: 'Calf Raise (Machine)', heavyCompound: false, requires: [['calf_raise_machine'], ['leg_press']],
     muscles: { calves: 1 }, aliases: ['standing calf raise', 'seated calf raise', 'calf press', 'leg press calf raise'] },
+  { id: 'dumbbell_calf_raise', name: 'Calf Raise (Dumbbell)', heavyCompound: false, requires: [['dumbbells'], ['kettlebell']],
+    muscles: { calves: 1 }, aliases: ['dumbbell calf raise', 'single leg dumbbell calf raise', 'weighted calf raise'] },
   { id: 'hip_adduction', name: 'Hip Adduction (Machine)', heavyCompound: false, requires: [['hip_adductor'], ['cable']],
     muscles: { adductors: 1 }, aliases: ['hip adductor', 'adductor machine', 'cable hip adduction'] },
   { id: 'copenhagen_adduction', name: 'Copenhagen Adduction', heavyCompound: false, requires: NONE,
@@ -220,6 +224,9 @@ export const EXERCISES_BY_ID: Record<string, Exercise> = Object.fromEntries(
   EXERCISES.map((e) => [e.id, e]),
 );
 
-export function usableOption(exercise: Exercise, available: Set<EquipmentKind>): EquipmentKind[] | null {
-  return exercise.requires.find((option) => option.every((k) => available.has(k))) ?? null;
+export function usableOption(exercise: Exercise, available: Set<EquipmentKind>, preference: LoadPreference = 'any'): EquipmentKind[] | null {
+  const usable = exercise.requires.filter((option) => option.every((k) => available.has(k)));
+  if (!usable.length) return null;
+  if (preference === 'any') return usable[0];
+  return usable.reduce((best, o) => (preferenceRank(o, preference) < preferenceRank(best, preference) ? o : best));
 }

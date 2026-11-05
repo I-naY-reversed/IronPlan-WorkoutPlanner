@@ -78,6 +78,8 @@ const GUESSES: Record<string, Guess[]> = {
     { from: 'back_squat', kinds: ['dumbbells'], ratio: 0.4 },
   ],
   machine_calf_raise: [{ from: 'leg_press', kinds: ['calf_raise_machine', 'leg_press'], ratio: 0.6 }],
+  dumbbell_calf_raise: [{ from: 'leg_press', kinds: ['dumbbells', 'kettlebell'], ratio: 0.1 }],
+  dumbbell_split_squat: [{ from: 'back_squat', kinds: ['dumbbells', 'kettlebell'], ratio: 0.2 }],
   hip_adduction: [
     { from: 'leg_extension', kinds: ['hip_adductor'], ratio: 0.9 },
     { from: 'leg_extension', kinds: ['cable'], ratio: 0.25 },

@@ -58,6 +58,30 @@ export const EQUIPMENT_INFO: Record<EquipmentKind, EquipmentInfo> = {
   tibialis_machine: { label: 'Tibialis machine or tib bar', loaded: true, defaultIncrementKg: 2.5, defaultIncrementLb: 5 },
 };
 
+export type Modality = 'free' | 'machine' | 'bodyweight';
+export type LoadPreference = 'free_weights' | 'any' | 'machines';
+
+const FREE_WEIGHTS = new Set<EquipmentKind>(['barbell', 'dumbbells', 'kettlebell']);
+const MACHINES = new Set<EquipmentKind>([
+  'cable', 'leg_press', 'hack_squat', 'leg_curl', 'leg_extension', 'chest_fly_machine', 'row_machine',
+  'calf_raise_machine', 'hip_adductor', 'ab_crunch_machine', 'tibialis_machine',
+]);
+
+export function modalityOf(option: EquipmentKind[]): Modality {
+  if (option.some((k) => FREE_WEIGHTS.has(k))) return 'free';
+  if (option.some((k) => MACHINES.has(k))) return 'machine';
+  return 'bodyweight';
+}
+
+export const MODALITY_LABELS: Record<Modality, string> = { free: 'Free weight', machine: 'Machine', bodyweight: 'Bodyweight' };
+
+export function preferenceRank(option: EquipmentKind[], preference: LoadPreference): number {
+  const m = modalityOf(option);
+  if (preference === 'free_weights') return m === 'free' ? 0 : m === 'machine' ? 1 : 2;
+  if (preference === 'machines') return m === 'machine' ? 0 : m === 'free' ? 1 : 2;
+  return 0;
+}
+
 export type LoadSettings = {
   incrementKg?: number;
   maxKg?: number;
@@ -118,8 +142,14 @@ export const HOME_DUMBBELLS: EquipmentSetup = {
   custom: [],
 };
 
+export const FREE_WEIGHT_GYM: EquipmentSetup = {
+  owned: { barbell: {}, squat_rack: {}, bench: {}, dumbbells: {}, kettlebell: {}, pullup_bar: {}, dip_bars: {}, bands: {} },
+  custom: [],
+};
+
 export const EQUIPMENT_PRESETS: { id: string; label: string; setup: EquipmentSetup }[] = [
   { id: 'gym', label: 'Full gym', setup: FULL_GYM },
+  { id: 'free', label: 'Free-weight gym: barbell, rack, dumbbells', setup: FREE_WEIGHT_GYM },
   { id: 'home', label: 'Home: dumbbells, bench, bands, bar', setup: HOME_DUMBBELLS },
   { id: 'none', label: 'Bodyweight only', setup: BODYWEIGHT_ONLY },
 ];

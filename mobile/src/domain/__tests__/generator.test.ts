@@ -166,7 +166,7 @@ test('a full gym gets the loadable calf raise, and adductors are trained', () =>
   const plan = generatePlan({ ...DEFAULT_PROFILE, daysPerWeek: 4, trainingDays: [0, 1, 3, 4] }, [], '2026-10-20');
   const lower = plan.sessions.find((s) => s.exercises.some((e) => e.exerciseId.includes('calf')))!;
   const ids = lower.exercises.map((e) => e.exerciseId);
-  expect(ids).toContain('machine_calf_raise');
+  expect(ids.some((id) => id === 'machine_calf_raise' || id === 'dumbbell_calf_raise')).toBe(true);
   expect(ids).not.toContain('calf_raise');
   expect(plan.delivered.adductors).toBeGreaterThan(0);
 });
