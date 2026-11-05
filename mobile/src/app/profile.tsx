@@ -5,6 +5,7 @@ import { Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'reac
 import { ExercisePicker } from '@/components/exercise-picker';
 import { OnCard, Screen, useBand } from '@/components/screen';
 import { Sources } from '@/components/sources';
+import { TechniqueLibrary } from '@/components/evidence';
 import { ThemedText } from '@/components/themed-text';
 import { Button, TextAction } from '@/components/ui/button';
 import { NumberField } from '@/components/ui/number-field';
@@ -16,7 +17,7 @@ import { WeekEditor } from '@/components/week-editor';
 import { Fonts, Radius, Spacing, TypeScale } from '@/constants/theme';
 import { defaultIncrementKg, EQUIPMENT_INFO, minLoadKg, EQUIPMENT_KINDS, EQUIPMENT_PRESETS, type CustomEquipment, type EquipmentKind, type LoadSettings } from '@/domain/equipment';
 import { EXERCISES_BY_ID } from '@/domain/exercises';
-import { displayMode, EXPERIENCE_OPTIONS, GOAL_OPTIONS, POPULATION_MEANS, PROFILE_LIMITS, REMINDER_OPTIONS, SESSION_MINUTE_OPTIONS, TIME_OPTIONS, UNIT_OPTIONS, VOLUME_OPTIONS, type Profile } from '@/domain/profile';
+import { displayMode, EXPERIENCE_OPTIONS, GOAL_OPTIONS, POPULATION_MEANS, PROFILE_LIMITS, LOAD_PREFERENCE_OPTIONS, loadPreferenceOf, REMINDER_OPTIONS, SESSION_MINUTE_OPTIONS, TIME_OPTIONS, UNIT_OPTIONS, VOLUME_OPTIONS, type Profile } from '@/domain/profile';
 import { allowReminders } from '@/state/reminders';
 import { MAX_LOAD_KG } from '@/domain/plausibility';
 import { formatLoad, fromUnit, toUnit } from '@/domain/units';
@@ -30,7 +31,7 @@ export default function SettingsScreen() {
   const theme = useTheme();
   const band = useBand();
   const { profile, update: save } = useProfile();
-  const [view, setView] = useState<'main' | 'exclude' | 'lock' | 'prefer' | 'sources'>('main');
+  const [view, setView] = useState<'main' | 'exclude' | 'lock' | 'prefer' | 'sources' | 'technique'>('main');
   const [customName, setCustomName] = useState('');
   const [customKind, setCustomKind] = useState<EquipmentKind>('dumbbells');
   const [reminderNote, setReminderNote] = useState<string | null>(null);
@@ -66,6 +67,7 @@ export default function SettingsScreen() {
   };
 
   if (view === 'sources') return <Sources onBack={() => setView('main')} profile={profile} />;
+  if (view === 'technique') return <TechniqueLibrary onBack={() => setView('main')} />;
   if (view === 'lock') {
     return (
       <Screen title="Lock an exercise" subtitle="Kept in your plan every week">
@@ -199,6 +201,17 @@ export default function SettingsScreen() {
             onChange={(id) => update((p) => ({ ...p, equipment: { ...EQUIPMENT_PRESETS.find((x) => x.id === id)!.setup, custom: p.equipment.custom } }))}
             options={EQUIPMENT_PRESETS.map((x) => ({ value: x.id, label: x.label }))}
           />
+          <Segmented
+            label="Prefer"
+            value={loadPreferenceOf(profile)}
+            onChange={(loadPreference) => update((p) => ({ ...p, loadPreference }))}
+            options={LOAD_PREFERENCE_OPTIONS}
+          />
+          <Info title="Free weights or machines">
+            Both build the same muscle, but strength carries over best to the tool you train with. With free weights first,
+            the plan uses barbells, dumbbells and kettlebells where it can and fills gaps with your machines. Turn off what
+            your gym does not have below.
+          </Info>
           {EQUIPMENT_KINDS.map((kind, i) => {
             const owned = profile.equipment.owned[kind];
             const info = EQUIPMENT_INFO[kind];
@@ -462,6 +475,17 @@ export default function SettingsScreen() {
           </ThemedText>
           <Button title="Import history" variant="secondary" onPress={() => router.push('/import')} />
         </Section>
+
+        <View style={styles.field}>
+          <Pressable accessibilityRole="link" onPress={() => setView('technique')} style={styles.link}>
+            <ThemedText themeColor="link" style={styles.underline}>
+              Technique research
+            </ThemedText>
+            <ThemedText type="caption" themeColor="steel">
+              Form, grip, mind-muscle connection and exercise choice, from peer-reviewed studies
+            </ThemedText>
+          </Pressable>
+        </View>
 
         <View style={styles.field}>
           <Pressable accessibilityRole="link" onPress={() => setView('sources')} style={styles.link}>
