@@ -22,7 +22,7 @@ export default function AppTabs() {
       backgroundColor={theme.background}
       indicatorColor="transparent"
       labelVisibilityMode="labeled"
-      iconColor={{ default: theme.steel, selected: theme.bracket }}
+      iconColor={{ default: theme.steel, selected: theme.highlight }}
       labelStyle={{ default: { color: theme.steel }, selected: { color: theme.text } }}>
       {TABS.map((t) => (
         <NativeTabs.Trigger key={t.name} name={t.name} hidden={'hidden' in t ? t.hidden : undefined}>

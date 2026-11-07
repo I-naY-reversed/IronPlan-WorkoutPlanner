@@ -38,7 +38,7 @@ export function TabButton({ children, isFocused, icon, ref: _ref, ...props }: Ta
   const color = isFocused ? theme.text : theme.steel;
   return (
     <Pressable {...props} style={({ pressed }) => [styles.tab, pressed && styles.pressed]}>
-      <Image source={icon} style={[styles.icon, { tintColor: isFocused ? theme.bracket : theme.steel }]} />
+      <Image source={icon} style={[styles.icon, { tintColor: isFocused ? theme.highlight : theme.steel }]} />
       <ThemedText type="caption" style={{ color }}>
         {children}
       </ThemedText>

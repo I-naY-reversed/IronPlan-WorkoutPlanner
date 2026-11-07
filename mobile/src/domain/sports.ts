@@ -39,7 +39,7 @@ export const SPORT_PROFILES: Record<Sport, SportProfile> = {
     requiredLifts: {},
     lowerAnchors: [],
     conditioning: [
-      'Aim for 150–300 minutes of moderate cardio a week. It barely affects strength or muscle gains.',
+      'Aim for 150–300 minutes of moderate cardio a week. It only slightly affects strength or muscle gains if done in moderation.',
     ],
   },
 

@@ -92,7 +92,7 @@ export default function PlanScreen() {
 
   if (swapping) {
     return (
-      <Screen title={`Replace ${swapping.name}`} subtitle="Replaced in every workout from now on. Undo from its card.">
+      <Screen title={`Replace ${swapping.name}`} subtitle="Replaced in all workouts. Undo from its card.">
         <TextAction title="Cancel" onPress={() => setSwapping(null)} />
         <TextAction
           title={`Exclude ${swapping.name}`}
@@ -105,7 +105,7 @@ export default function PlanScreen() {
           options={swapOptions(swapping.exerciseId, profile)}
           onPick={(e) => {
             update(applySwap(profile, swapping.exerciseId, e.id));
-            setSwapNote(`Replaced with ${e.name}. "Back to ${swapping.name}" on its card undoes it.`);
+            setSwapNote(`Replaced with ${e.name}. Tap "Back to ${swapping.name}" to undo.`);
             setSwapping(null);
           }}
         />
@@ -137,13 +137,13 @@ export default function PlanScreen() {
   const nextTitle = `${nextSession.title}, ${nextSession.weekday > todayWeekday ? '' : 'next '}${WEEKDAYS[nextSession.weekday]}`;
   const streakNow = consistency(history, profile, today);
   const thisPeriod = streakNow.weeks[streakNow.weeks.length - 1];
-  const span = profile.periodWeeks === 2 ? 'fortnight' : 'week';
+  const span = profile.periodWeeks === 2 ? 'two-week period' : 'week';
   const planned = profile.daysPerWeek * (profile.periodWeeks === 2 ? 2 : 1);
   const weekLine =
     `Streak: ${streakNow.streak} ${span}${streakNow.streak === 1 ? '' : 's'}. ` +
     (thisPeriod.status === 'kept'
       ? `This ${span} counts.`
-      : `${span === 'week' ? 'Weekly' : 'Fortnightly'} goal: ${thisPeriod.needed < planned ? `${thisPeriod.needed} of your ${planned} planned workouts` : `all ${planned} planned workouts`}, ${thisPeriod.done} done.`);
+      : `${span === 'week' ? 'Weekly' : '2-week'} goal: ${thisPeriod.needed < planned ? `${thisPeriod.needed} of your ${planned} planned workouts` : `all ${planned} planned workouts`}, ${thisPeriod.done} done.`);
   const lastSetOf = (id: string) => {
     const last = [...history].reverse().find((h) => h.exerciseId === id);
     return last ? `${formatLoad(last.weightKg, profile.unit)} ${profile.unit} × ${last.reps}${last.rpe !== null ? ` @${last.rpe}` : ''}` : undefined;
@@ -222,12 +222,12 @@ export default function PlanScreen() {
           <View style={[styles.intro, { borderColor: theme.text }]}>
             <ThemedText type="smallBold">How it works</ThemedText>
             <ThemedText type="small">
-              {history.length ? '1. Weights start from your lifts, or a first guess.' : '1. Weights start as a first guess.'} Sets calibrate the guess.
+              {history.length ? '1. Weights are estimated from your lifts, or population.' : '1. Weights start as a first guess.'} Sets calibrate the estimate.
             </ThemedText>
             <ThemedText type="small">2. Log each set and how hard it felt.</ThemedText>
             <View style={styles.loadLine}>
               <ThemedText type="small" style={styles.flex}>
-                3. The bracket is your likely range. It narrows as you log sets.
+                3. The bracket is your likely weight range. It refines with more logs.
               </ThemedText>
               <BracketGlyph certainty={0.25} />
             </View>
@@ -341,10 +341,10 @@ export default function PlanScreen() {
                 onUndoSwap={
                   from
                     ? () => {
-                        const swaps = { ...profile.swaps };
-                        delete swaps[from];
-                        update({ ...profile, swaps });
-                      }
+                      const swaps = { ...profile.swaps };
+                      delete swaps[from];
+                      update({ ...profile, swaps });
+                    }
                     : undefined
                 }
               />
@@ -406,7 +406,7 @@ function ExerciseRow({
         : e.cappedByMax
           ? "Your equipment's max"
           : starting
-            ? `Starts low on purpose${e.liftMoreShare ? `: ${e.liftMoreShare >= 0.9 ? '9 in 10' : '4 in 5'} people like you lift more` : ''}`
+            ? `${simple ? 'Low' : 'Conservative'} estimate${e.liftMoreShare ? `: ${e.liftMoreShare >= 0.9 ? '9 in 10' : '4 in 5'} people like you lift more` : ''}`
             : null;
   return (
     <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>

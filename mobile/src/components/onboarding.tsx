@@ -65,7 +65,7 @@ export function Onboarding() {
 
   if (picking) {
     return (
-      <Screen title="Exercises you do now" tabs={false}>
+      <Screen title="Exercises you currently do" tabs={false}>
         <Button title="Cancel" variant="secondary" onPress={() => setPicking(false)} />
         <ExercisePicker
           onPick={(e) => {
@@ -147,7 +147,7 @@ export function Onboarding() {
             <WeekdayPicker value={draft.trainingDays} onChange={(trainingDays) => set({ trainingDays, daysPerWeek: trainingDays.length })} />
             {draft.experience === 'new' && draft.trainingDays.length >= 5 ? (
               <ThemedText type="caption" themeColor="textSecondary">
-                Beginners usually start with 2 to 3 days a week.
+                Beginners are recommended to start with 2 to 3 days a week.
               </ThemedText>
             ) : null}
             {COMBAT_SPORTS.includes(draft.sport) ? (
@@ -175,7 +175,7 @@ export function Onboarding() {
             </ThemedText>
             <WeekEditor profile={draft} onChange={setDraft} />
             <ThemedText type="label" themeColor="textSecondary">
-              Exercises you do now (optional)
+              Exercises you currently do (optional)
             </ThemedText>
             {draft.preferredExercises.map((id, i) => (
               <View key={id} style={[styles.listRow, band(i)]}>
@@ -191,7 +191,7 @@ export function Onboarding() {
           <>
             <Segmented label="Where you train" value={preset} onChange={setPreset} options={EQUIPMENT_PRESETS.map((p) => ({ value: p.id, label: p.label }))} />
             <ThemedText type="small" themeColor="textSecondary">
-              Using Strong or Hevy? Import your logs next for a more personal plan.
+              Using Strong or Hevy? Import your logs for a more personal plan.
             </ThemedText>
           </>
         ) : null}

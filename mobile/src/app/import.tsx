@@ -50,7 +50,7 @@ export default function ImportScreen() {
       setChoices(new Map());
     } catch (e) {
       setParsed(null);
-      setMessage(e instanceof Error ? e.message : 'Could not read that file.');
+      setMessage(e instanceof Error ? e.message : 'Could not read the file.');
     }
   };
 

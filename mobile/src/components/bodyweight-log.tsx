@@ -111,7 +111,7 @@ export function BodyweightLog({ profile, update }: { profile: Profile; update: (
             </View>
           ) : null}
           <ThemedText type="caption" themeColor="steel">
-            Dots: weigh-ins. Line: trend, which smooths out day-to-day water swings of 1–2%. Weigh in at the same time of day, ideally in the morning.
+            Points: weigh-ins. Line: trend, which smooths out day-to-day water swings of 1–2%. Weigh in at the same time of day, ideally in the morning.
           </ThemedText>
           {[...entries].reverse().slice(0, 3).map((e) => (
             <View key={e.date} style={styles.entry}>
