@@ -10,12 +10,26 @@ A new exercise needs one JSON spec in `specs/`, not new code.
 
 ## Requirements
 
-- Blender 5.2 or newer (`brew install --cask blender`). Tested on 5.2.3 LTS.
-- ffmpeg with libx264 (`brew install ffmpeg`).
-- Python 3 on the PATH for `spec.py` (no packages needed).
+Works on Windows, macOS and Linux.
 
-Rendering uses Eevee, which runs headless on the Metal GPU on Apple Silicon. Pass
-`--engine cycles` only if Eevee fails on a machine.
+- Blender 5.2 or newer. Tested on 5.2.3 LTS.
+  Windows: `winget install -e --id BlenderFoundation.Blender.LTS.5.2`. macOS: `brew install --cask blender`.
+- ffmpeg with libx264. Windows: `winget install -e --id Gyan.FFmpeg`. macOS: `brew install ffmpeg`.
+- Python 3.11 or newer for `spec.py`, the tests and `render_all.py` (no packages needed).
+
+Both programs are found on the PATH, or through environment variables holding
+the full path: `BLENDER` and `FFMPEG`. The Windows Blender installer does not
+add Blender to the PATH, so set the variable once:
+
+```powershell
+setx BLENDER "C:\Program Files\Blender Foundation\Blender 5.2\blender.exe"
+```
+
+`py tools/animate/toolpaths.py` prints what was found, or says what is missing.
+
+Rendering uses Eevee on the GPU (Metal on Apple Silicon, Vulkan or OpenGL on
+NVIDIA). `--engine cycles` picks OptiX or CUDA on NVIDIA, Metal on Apple and HIP
+on AMD automatically, and falls back to the CPU.
 
 ## Usage
 
@@ -24,7 +38,11 @@ Rendering uses Eevee, which runs headless on the Metal GPU on Apple Silicon. Pas
 blender --background --python tools/animate/render.py -- \
   --spec tools/animate/specs/overhead_triceps_extension.json --variant correct --out tools/animate/out
 
-# every spec, both variants
+# every spec, both variants (any OS; use py on Windows, python3 elsewhere)
+py tools/animate/render_all.py
+py tools/animate/render_all.py --spec overhead_triceps_extension --variant fault --samples 48
+
+# same on macOS or Linux, from bash
 tools/animate/render_all.sh
 
 # check every spec without Blender (also checks ids against exercises.ts)
@@ -39,6 +57,9 @@ blender --background --python tools/animate/render.py -- --spec ... --variant fa
 # solve only: prints the IK checks, renders nothing
 blender --background --python tools/animate/render.py -- --spec ... --variant correct --out tools/animate/out --solve-only
 ```
+
+`render_all.py` takes `--out`, `--spec` and `--variant` (both repeatable) and
+passes every other option on to `render.py`.
 
 Options: `--samples` (Eevee samples, default 24; the shipped clips use 48),
 `--crf` (default 28), `--keep-frames` (keeps the PNG frames and prints where).
