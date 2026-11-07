@@ -1,6 +1,7 @@
 # Handoff: exercise animation pilot
 
-> **Status (2026-11-07): parked as a fallback.** This pipeline works and is
+> **Status (2026-11-07): the Blender body is parked as a fallback**, because
+> we are piloting AI video generation next. This pipeline works and is
 > committed, but it is not the active approach. Keep it as a fallback; don't
 > build on it, change its output, or integrate its clips into the app unless
 > Benjamin says so. The last state is described under "Current state" below.
