@@ -97,53 +97,88 @@ blender --background --python tools/animate/render.py -- --spec tools/animate/sp
 
 ## 2. The plan
 
-### Step 1. Sculpt (done for v1, v2 being evaluated)
+### Step 1. Sculpt (done)
 
-`tools/animate/characters/sculpt.glb` (gitignored) was generated on
-2026-11-07 from `front.jpeg` and `back.jpeg`. Benjamin approved it.
+**Chosen base: `tools/animate/characters/sculpt_v1_sym.glb`** (gitignored): the
+first Hunyuan3D sculpt, symmetrized and cleaned up. Use it for the bake. Never
+overwrite `sculpt.glb`, the untouched original.
 
-How it was made, so it can be reproduced:
+#### How v1 was made
+
+Generated on 2026-11-07 from `front.jpeg` and `back.jpeg`:
 
 - Hugging Face Space `tencent/Hunyuan3D-2mv`, endpoint `/shape_generation`
   (shape only, no texture), called from the terminal with `gradio_client` in a
   throwaway venv outside the repo. It ran anonymously with no quota prompt.
   Run `client.view_api()` first; the endpoint and parameter names come from
   there.
-- Inputs: `mv_image_front` = `front.jpeg`, `mv_image_back` = `back.jpeg`,
+- Inputs: `mv_image_front` = `front.jpeg`, `mv_image_back` = `back.jpeg`;
   left, right, `image` and `caption` empty.
 - Settings: the Space defaults (Turbo mode: `steps` 5, `guidance_scale` 5.0,
   Standard decode: `octree_resolution` 256, `num_chunks` 8000,
-  `check_box_rembg` true), except `seed` fixed at 1234 with
-  `randomize_seed` false so the mesh can be reproduced. The Space reported the
-  model `hunyuan3d-dit-v2-mv-turbo`.
-- The endpoint returns a .glb directly (wrapped in a Gradio update dict:
-  the path is in `result[0]['value']`).
+  `check_box_rembg` true), except `seed` fixed at 1234 with `randomize_seed`
+  false so the mesh can be reproduced. The Space reported the model
+  `hunyuan3d-dit-v2-mv-turbo`.
+- The endpoint returns a .glb directly, wrapped in a Gradio update dict: the
+  path is in `result[0]['value']`.
 
-What it is:
+#### What was wrong with v1
 
-- One watertight mesh: 60,580 vertices, 121,156 faces in Blender, 0
-  non-manifold edges. A-pose, palms forward, facing -Y like the pipeline.
-- Height 1.957 units in Hunyuan's normalised space (it fits the model into
-  roughly -1 to 1), not metres. **Scale by about 0.91 to reach 1.78 m** when
-  lining it up over the MPFB body. Leave the saved file unscaled.
+- **Back midline ridge.** A deep, sharp V-shaped groove ran straight down the
+  spine, from the base of the neck to the cleft between the glutes (about 14 mm
+  deep within 2 cm of the midline at full scale), and the two halves of the back
+  met there with a slight shading step. In a three-quarter rear view this reads
+  as a line from the shoulder blade down through the glute into the back of the
+  thigh. It is on the back midline, **not** a side seam where the front and back
+  views were joined; earlier notes called it a side seam, which was wrong.
+- Folded faces at the crotch (5 face pairs) and some grain there.
+- Partly fused fingers. Irrelevant once the hands are masked out of the bake.
+- **Not a mesh problem, but worth knowing:** under a raking side light, Eevee
+  adds grain, a false diagonal line across the shoulder blade (the raised arm's
+  shadow edge) and ragged shadow edges along the spine. Cycles shows none of
+  that. Judge sculpt and bake quality in Cycles, and watch for the same Eevee
+  shadow noise in the final clips (more samples, more shadow rays, or a less
+  raking key light).
 
-Known issues:
+#### v2 was tried and not used
 
-- **Side seam (serious):** a deep, ragged ridge runs down each side, from the
-  shoulder blade through the glute into the back of the thigh, where the model
-  joined the front and back views. It is plain in a three-quarter rear view.
-- The back is softer than the reference: the shoulder blades and lats read
-  weakly, and there is a deep groove down the spine. This matters because the
-  triceps clips are seen from behind.
-- The fingers are partly fused. Irrelevant once the hands are masked out of
-  the bake (Step 3).
+`sculpt_v2.glb` used all four views: front, back, plus `left.jpeg` and
+`right.jpeg` cropped from `back_and_sides_draft.jpeg` and padded to front.jpeg's
+canvas and figure scale. Its profile was closer to the side references, but the
+midline ridge was just as strong and the back detail softer. Swapping the left
+and right inputs made almost no difference. The bake only transfers surface
+detail (the MPFB body sets the proportions), so v1's sharper back won.
 
-Fix in progress: `sculpt_v2.glb` is generated with all four views (front, back,
-plus left and right cropped from `back_and_sides_draft.jpeg` into `left.jpeg`
-and `right.jpeg`). Check views of v1 are in `tools/animate/out/sculpt_check/`,
-v2 in `tools/animate/out/sculpt_check_v2/`. Use whichever version Benjamin
-picks; if neither is clean, smooth the seam on the sculpt (Smooth brush or a
-masked Laplacian Smooth) before baking.
+#### How sculpt_v1_sym.glb was made
+
+1. Fitted the mirror plane on the torso: x = -0.02 (sculpt units), no yaw, and
+   moved the mesh so the midline is x = 0. The sym file is centred, unlike
+   `sculpt.glb`.
+2. Kept the character's right half (-X) and mirrored it onto the left with
+   `bmesh.ops.symmetrize`. Checked: the kept half is unchanged and the result
+   is exactly symmetric. By eye the left half looked flatter, and the measures
+   agreed on flatness (24% lower curvature variance on the shoulder blade). The
+   grain on that side turned out to be Eevee lighting, not geometry.
+3. Relaxed a very narrow band (about 0.8 cm) all round the midline to unfold
+   faces that symmetrize had folded. That removed the marks it left on the
+   belly. 2 folds remain, inside the navel pit, which is natural.
+4. Smoothed a back-only strip along the spine (Gaussian, sigma 0.025 units,
+   about 2.3 cm, 40 Laplacian passes). The groove is now a soft U, 2 to 4 mm deep
+   within 2 cm.
+5. Extra Taubin smoothing in a ball at the crotch, then 2 light Taubin passes
+   over the whole mesh for grain. Taubin keeps volume and the muscle shapes:
+   back muscle relief measured 2.93 before and 2.95 after.
+
+Result: one watertight mesh, 61,038 vertices, 122,072 faces, 0 non-manifold
+edges, x from -0.645 to +0.645. Height 1.957 units in Hunyuan's normalised
+space, not metres: **scale by about 0.91 to reach 1.78 m** when lining it up
+over the MPFB body (Step 3). Leave the saved file unscaled.
+
+Check renders: `tools/animate/out/sculpt_check/` (v1),
+`tools/animate/out/sculpt_check_v2/` (v2), `tools/animate/out/sculpt_check_sym/`
+(the chosen base, Eevee views plus Cycles rear views in `cycles/`, and
+side-by-side comparisons with v1). The scripts that made all of this are in
+`tools/animate/characters/scripts/` (gitignored, with a README).
 
 ### Step 2. MPFB 2 body
 
@@ -158,7 +193,7 @@ Blender; its output is CC0) with a Rigify rig.
 
 ### Step 3. Bake the sculpt's detail onto the MPFB body
 
-1. Import `sculpt.glb` and line it up over the MPFB body (scale, rotation,
+1. Import `sculpt_v1_sym.glb` and line it up over the MPFB body (scale, rotation,
    position). Small pose differences can be fixed with a Shrinkwrap pass or
    by posing the MPFB body to match.
 2. Bake the sculpt's muscle detail into a tangent-space normal map on the
@@ -171,7 +206,8 @@ Blender; its output is CC0) with a Rigify rig.
    body, then mix the baked normal map with a flat normal (0.5, 0.5, 1.0) using
    that mask, with a soft falloff at the wrists, ankles and neck.
 4. Check seams at the shoulders, armpits and hips, where the MPFB topology
-   deforms most, and along the sculpt's side seam (see Step 1).
+   deforms most, and along the spine, where the sculpt was symmetrized and
+   smoothed (see Step 1). Check bake results in Cycles, not Eevee.
 5. Save the map as `tools/animate/characters/body_normal.png` (gitignored)
    and use it in the clay material.
 
@@ -245,8 +281,8 @@ Recommended approach:
 
 ## 5. Reference images
 
-`tools/animate/characters/reference/` holds `front.jpeg`, `back.jpeg` and
-`back_and_sides_draft.jpeg` (and `left.jpeg` / `right.jpeg` once cropped). They
+`tools/animate/characters/reference/` holds `front.jpeg`, `back.jpeg`,
+`back_and_sides_draft.jpeg`, and the `left.jpeg` / `right.jpeg` cropped from it. They
 are not in git. Don't upload them anywhere except as Benjamin asks (they were
 sent to the Hunyuan3D Space at his request to make the sculpt).
 
