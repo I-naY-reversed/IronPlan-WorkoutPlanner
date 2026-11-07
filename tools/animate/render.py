@@ -29,6 +29,8 @@ import rig  # noqa: E402
 import spec as spec_mod  # noqa: E402
 import toolpaths  # noqa: E402
 
+BODY_BLEND = HERE / 'characters' / 'mpfb_body.blend'
+
 
 def parse_args():
     argv = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
@@ -36,10 +38,14 @@ def parse_args():
     p.add_argument('--spec', required=True)
     p.add_argument('--variant', choices=spec_mod.VARIANTS, required=True)
     p.add_argument('--out', required=True)
-    p.add_argument('--samples', type=int, default=24, help='Eevee samples per frame')
+    p.add_argument('--character', choices=('mpfb', 'mannequin'), default='mpfb' if BODY_BLEND.exists() else 'mannequin',
+                   help='mpfb: the realistic body from character.py (default when built); mannequin: the procedural one')
+    p.add_argument('--samples', type=int, default=32, help='samples per frame')
     p.add_argument('--engine', choices=('eevee', 'cycles'), default='eevee')
     p.add_argument('--stills', default='', help='comma-separated frames to save as PNG stills instead of a clip')
-    p.add_argument('--crf', type=int, default=28)
+    p.add_argument('--width', type=int, default=1080)
+    p.add_argument('--height', type=int, default=1920)
+    p.add_argument('--crf', type=int, default=22)
     p.add_argument('--keep-frames', action='store_true')
     p.add_argument('--solve-only', action='store_true', help='solve and print the pose checks, no rendering')
     return p.parse_args(argv)
@@ -58,12 +64,9 @@ def ffmpeg():
     return _FFMPEG
 
 
-BADGE_MARGIN = 22
-
-
 def encode(frames_dir, badge_png, mp4, poster, fps, crf, frame_count):
     """Encode to temporary names and move into place only when both files succeed."""
-    overlay = f'[0:v][1:v]overlay=W-w-{BADGE_MARGIN}:{BADGE_MARGIN}:format=auto'
+    overlay = f'[0:v][1:v]overlay=W-w-{look.BADGE_MARGIN}:{look.BADGE_MARGIN}:format=auto'
     tmp_mp4 = mp4.with_name(mp4.name + '.part.mp4')
     tmp_png = poster.with_name(poster.name + '.part.png')
     # Convert with the BT.709 matrix and tag it, so phones and browsers show the
@@ -89,43 +92,70 @@ def encode(frames_dir, badge_png, mp4, poster, fps, crf, frame_count):
 def still(frame_png, badge_png, out_png):
     subprocess.run([
         ffmpeg(), '-y', '-loglevel', 'error', '-i', str(frame_png), '-i', str(badge_png),
-        '-filter_complex', f'[0:v][1:v]overlay=W-w-{BADGE_MARGIN}:{BADGE_MARGIN}:format=auto', '-frames:v', '1', str(out_png),
+        '-filter_complex', f'[0:v][1:v]overlay=W-w-{look.BADGE_MARGIN}:{look.BADGE_MARGIN}:format=auto', '-frames:v', '1', str(out_png),
     ], check=True)
 
 
-def build_scene(raw, spec, samples, engine):
+def build_scene(raw, spec, samples, engine, character='mannequin', width=1080, height=1920):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     scene = bpy.context.scene
     scene.frame_start, scene.frame_end = 0, spec['frames'] - 1
-    look.setup_render(scene, samples, engine)
+    look.setup_render(scene, samples, engine, width, height)
 
-    body = bpy.data.collections.new('Body')
-    glow = bpy.data.collections.new('Glow')
-    scene.collection.children.link(body)
-    scene.collection.children.link(glow)
-
-    clay = look.principled('Clay', look.CLAY, roughness=0.62, specular=0.3)
-    arm, pieces = rig.build(body, clay)
-    solver = rig.Solver(arm)
-    frames, report = rig.solve(spec, solver)
-    equipment = look.build_equipment(spec['equipment'], body)
-    rig.keyframe(arm, frames, solver, equipment)
-    look.build_glow(arm, spec['glow'], glow)
-
-    # Camera framing from the solved motion of every variant, so toggling between
-    # the correct and fault clips never shifts the frame.
+    body_col = bpy.data.collections.new('Body')
+    glow_col = bpy.data.collections.new('Glow')
+    scene.collection.children.link(body_col)
+    scene.collection.children.link(glow_col)
+    equipment = look.build_equipment(spec['equipment'], body_col)
+    variants = [spec_mod.resolve(raw, v) for v in spec_mod.VARIANTS]
     pts = []
-    local_verts = {ob.name: [v.co.copy() for v in list(ob.data.vertices)[::4]] for ob in pieces}
-    for v_spec in [spec_mod.resolve(raw, v) for v in spec_mod.VARIANTS]:
-        v_frames = frames if v_spec['variant'] == spec['variant'] else rig.solve(v_spec, solver)[0]
-        for fr in v_frames[::max(1, len(v_frames) // 16)]:
-            for ob in pieces:
-                pts += [fr['world'][ob.parent_bone] @ v for v in local_verts[ob.name]]
-            pts += look.equipment_points(v_spec['equipment'], fr['equipment'] or [])
+
+    if character == 'mpfb':
+        import body as body_mod
+        body_ob, arm = body_mod.load(body_col)
+        skeleton = body_mod.build_canonical(arm, body_col)
+        solver = rig.Solver(skeleton)
+        frames, report = body_mod.solve_and_key(spec, arm, solver)
+        rig.keyframe_equipment(frames, equipment)
+        look.build_glow(arm, spec['glow'], glow_col, bone_map=body_mod.ORG)
+        if spec['glow']['muscles']:
+            body_mod.muscle_tint(body_ob, arm, spec['glow']['muscles'])
+            look.apply_tint(body_ob, spec['glow']['colour'], spec['glow']['tint_strength'])
+        # Framing: a cloud around the solved skeleton of every variant (one camera for both).
+        radii = body_mod.bone_radii(body_ob, arm)
+        for v_spec in variants:
+            # The pure solver (no rig in the loop) for every variant, so both clips get
+            # exactly the same camera.
+            v_frames = rig.solve(v_spec, solver)[0]
+            pts += body_mod.outline_points(v_frames, solver, radii)
+            for fr in v_frames[::max(1, len(v_frames) // 16)]:
+                pts += look.equipment_points(v_spec['equipment'], fr['equipment'] or [])
+        light_style = 'mpfb'
+    else:
+        clay = look.principled('Clay', look.CLAY, roughness=0.62, specular=0.3)
+        arm, pieces = rig.build(body_col, clay)
+        solver = rig.Solver(arm)
+        frames, report = rig.solve(spec, solver)
+        rig.keyframe(arm, frames, solver, equipment)
+        look.build_glow(arm, spec['glow'], glow_col)
+        local_verts = {ob.name: [v.co.copy() for v in list(ob.data.vertices)[::4]] for ob in pieces}
+        for v_spec in variants:
+            v_frames = frames if v_spec['variant'] == spec['variant'] else rig.solve(v_spec, solver)[0]
+            for fr in v_frames[::max(1, len(v_frames) // 16)]:
+                for ob in pieces:
+                    pts += [fr['world'][ob.parent_bone] @ v for v in local_verts[ob.name]]
+                pts += look.equipment_points(v_spec['equipment'], fr['equipment'] or [])
+        light_style = 'mannequin'
+
     pts.append(Vector((0, 0, 0)))
-    cam, target, distance = look.fit_camera(scene, spec['camera'], pts)
-    look.add_lights(scene, spec['camera'], target)
-    look.add_backdrop(body, spec['camera'])
+    cam_cfg = dict(spec['camera'])
+    if cam_cfg['framing'] == 'upper_body' and cam_cfg.get('min_z') is None:
+        # From just below the hip joints up.
+        cam_cfg['min_z'] = solver.rest['thigh.L'].translation.z - 0.08
+    cam, target, distance = look.fit_camera(scene, cam_cfg, pts)
+    look.add_lights(scene, cam_cfg, target, style=light_style)
+    # The floor mat only adds a stray band when the feet are out of frame.
+    look.add_backdrop(body_col, cam_cfg, style=light_style, mat=cam_cfg['framing'] == 'full_body')
 
     body_layer = scene.view_layers[0]
     body_layer.name = 'body'
@@ -136,6 +166,7 @@ def build_scene(raw, spec, samples, engine):
         glow_layer.samples = 8
     look.setup_compositor(scene, body_layer, glow_layer)
     report['camera_distance_m'] = round(distance, 3)
+    report['character'] = character
     return scene, report
 
 
@@ -148,7 +179,7 @@ def main():
     stem = f"{spec['id']}.{args.variant}"
 
     t0 = time.time()
-    scene, report = build_scene(raw, spec, args.samples, args.engine)
+    scene, report = build_scene(raw, spec, args.samples, args.engine, args.character, args.width, args.height)
     report = {k: (round(v, 2) if isinstance(v, float) else v) for k, v in report.items()}
     print('SOLVE', json.dumps(report))
     if args.solve_only:
@@ -165,7 +196,7 @@ def main():
 
 
 def render(args, spec, scene, report, out, stem, work, t0):
-    badge_png = badge.write_png(work / 'badge.png', spec['badge'])
+    badge_png = badge.write_png(work / 'badge.png', spec['badge'], size=look.BADGE_SIZE)
     frames_dir = work / 'frames'
     frames_dir.mkdir()
 
@@ -192,7 +223,8 @@ def render(args, spec, scene, report, out, stem, work, t0):
         'id': spec['id'], 'variant': args.variant, 'frames': spec['frames'], 'fps': spec['fps'],
         'seconds': spec['seconds'], 'render_seconds': round(render_s, 1), 'total_seconds': round(time.time() - t0, 1),
         'mp4_bytes': mp4.stat().st_size, 'poster_bytes': poster.stat().st_size,
-        'engine': args.engine, 'samples': args.samples, 'blender': bpy.app.version_string, 'checks': report,
+        'engine': args.engine, 'samples': args.samples, 'size': f'{args.width}x{args.height}', 'crf': args.crf,
+        'blender': bpy.app.version_string, 'checks': report,
     }
     (out / f'{stem}.json').write_text(json.dumps(meta, indent=2), encoding='utf-8')
     print('DONE', json.dumps(meta))

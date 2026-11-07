@@ -30,8 +30,8 @@
     { "to": "start", "seconds": 1.2 },
     { "to": "start", "seconds": 0.3 }
   ],
-  "camera": { "azimuth": 60, "elevation": 10, "lens": 50, "margin": 0.1 },
-  "glow": { "bones": ["thigh.*", "shin.*"], "joints": true },
+  "camera": { "azimuth": 60, "elevation": 10, "lens": 50, "margin": 0.1, "framing": "full_body" },
+  "glow": { "bones": ["thigh.*", "shin.*"] },
   "variants": {
     "correct": { "caption": "Full depth with the chest up and heels down." },
     "fault": {

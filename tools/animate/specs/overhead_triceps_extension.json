@@ -18,7 +18,7 @@
       "head": [4, 0, 0],
       "shoulder.*": [0, -12, 0],
       "upper_arm.*": [-168, 0, 0],
-      "forearm.*": [-22, 0, 0],
+      "forearm.*": [-30, 0, 0],
       "thigh.*": [0, -3, 8]
     },
     "end": {
@@ -31,14 +31,14 @@
     { "to": "start", "seconds": 1.0, "ease": "in_out" },
     { "to": "start", "seconds": 0.4 }
   ],
-  "camera": { "azimuth": 180, "elevation": 20, "lens": 50, "margin": 0.12, "min_z": 0.8 },
-  "glow": { "bones": ["upper_arm.*", "forearm.*"], "joints": true },
+  "camera": { "azimuth": 180, "elevation": 20, "lens": 50, "margin": 0.12, "framing": "upper_body" },
+  "glow": { "bones": ["upper_arm.*", "forearm.*"], "muscles": ["triceps"] },
   "variants": {
     "correct": { "caption": "Elbows forward and close to the head. Only the forearms move." },
     "fault": {
       "caption": "Common mistake: the elbows flare wide.",
       "poses": {
-        "start": { "upper_arm.*": [-166, 6, 12], "forearm.*": [-32, 0, 0] },
+        "start": { "upper_arm.*": [-166, 6, 12], "forearm.*": [-38, 0, 0] },
         "end": { "upper_arm.*": [-160, 34, 35] }
       }
     }

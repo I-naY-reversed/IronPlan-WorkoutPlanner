@@ -13,7 +13,17 @@ BACKDROP = (0.012, 0.012, 0.014)
 MAT = (0.028, 0.028, 0.031)
 IRON = (0.075, 0.075, 0.08)
 WIDTH, HEIGHT = 540, 960
-BADGE_BOX = 22 + 76 + 6  # badge margin + size + clearance, in pixels
+BADGE_SIZE, BADGE_MARGIN = 76, 22  # at 540 px wide; scaled with the width
+BADGE_BOX = BADGE_MARGIN + BADGE_SIZE + 6  # badge margin + size + clearance, in pixels
+
+
+def set_resolution(width, height):
+    """Output size. The badge (and the camera's keep-clear box for it) scale with the width."""
+    global WIDTH, HEIGHT, BADGE_SIZE, BADGE_MARGIN, BADGE_BOX
+    k = width / 540
+    WIDTH, HEIGHT = width, height
+    BADGE_SIZE, BADGE_MARGIN = round(76 * k), round(22 * k)
+    BADGE_BOX = BADGE_MARGIN + BADGE_SIZE + round(6 * k)
 
 
 # ---------------------------------------------------------------- materials
@@ -68,7 +78,8 @@ def _enable_cycles_gpu():
     return False
 
 
-def setup_render(scene, samples, engine='eevee'):
+def setup_render(scene, samples, engine='eevee', width=540, height=960):
+    set_resolution(width, height)
     r = scene.render
     r.resolution_x, r.resolution_y, r.resolution_percentage = WIDTH, HEIGHT, 100
     r.fps = 30
@@ -86,8 +97,11 @@ def setup_render(scene, samples, engine='eevee'):
         scene.eevee.use_shadows = True
         scene.eevee.use_raytracing = False
         scene.eevee.use_fast_gi = True
-        scene.eevee.shadow_ray_count = 2
-        scene.eevee.shadow_step_count = 8
+        # Soft shadows from big area lights need several rays per sample, or they show
+        # grain on a smooth back seen from behind.
+        scene.eevee.shadow_ray_count = 4
+        scene.eevee.shadow_step_count = 12
+        scene.eevee.shadow_resolution_scale = 1.0
     scene.view_settings.view_transform = 'AgX'
     scene.view_settings.look = 'AgX - Medium High Contrast'
     scene.view_settings.exposure = 0.0
@@ -185,8 +199,10 @@ def fit_camera(scene, cam_cfg, points):
     return cam, target, distance
 
 
-def add_lights(scene, cam_cfg, target):
-    """Soft key from the camera side, two rims from behind the figure, faint fill."""
+def add_lights(scene, cam_cfg, target, style='mannequin'):
+    """Soft key from the camera side, two rims from behind the figure, faint fill.
+    The realistic body also gets a soft top light so the shoulders and back read clearly
+    from behind, and area lights instead of spots for softer shadows."""
     az = cam_cfg['azimuth']
 
     def light(name, kind, energy, az_off, el, dist, size, colour=(1, 1, 1)):
@@ -206,16 +222,30 @@ def add_lights(scene, cam_cfg, target):
         ob.matrix_world = Matrix.Translation(pos) @ (target - pos).to_track_quat('-Z', 'Y').to_matrix().to_4x4()
         return ob
 
+    if style == 'mpfb':
+        light('Key', 'AREA', 260, -32, 38, 3.4, 1.8, (1.0, 0.97, 0.93))
+        light('Fill', 'AREA', 45, 75, 12, 4.0, 3.0, (0.9, 0.94, 1.0))
+        light('RimL', 'AREA', 420, 140, 25, 3.0, 0.9, (0.9, 0.95, 1.0))
+        light('RimR', 'AREA', 420, -140, 25, 3.0, 0.9, (0.9, 0.95, 1.0))
+        top = bpy.data.lights.new('Top', 'AREA')
+        top.energy, top.size, top.shape = 120, 1.6, 'DISK'
+        tob = bpy.data.objects.new('Top', top)
+        scene.collection.objects.link(tob)
+        tob.location = target + Vector((0, 0, 2.6))
+        return
     light('Key', 'SPOT', 380, -38, 40, 3.6, 0.6, (1.0, 0.97, 0.93))
     light('Fill', 'AREA', 30, 70, 10, 4.0, 3.0, (0.9, 0.94, 1.0))
     light('RimL', 'SPOT', 520, 145, 22, 3.2, 0.35, (0.9, 0.95, 1.0))
     light('RimR', 'SPOT', 520, -145, 22, 3.2, 0.35, (0.9, 0.95, 1.0))
 
 
-def add_backdrop(collection, cam_cfg):
-    """A cyclorama (floor that curves up into a wall) behind the figure, plus a floor mat."""
-    back = principled('Backdrop', BACKDROP, roughness=0.92, specular=0.2)
-    mat_m = principled('FloorMat', MAT, roughness=0.85, specular=0.25)
+def add_backdrop(collection, cam_cfg, style='mannequin', mat=True):
+    """A cyclorama (floor that curves up into a wall) behind the figure, plus a floor mat.
+    The realistic body's softer, brighter lights get a darker backdrop and mat, so both
+    still read as dark charcoal."""
+    k = 0.5 if style == 'mpfb' else 1.0
+    back = principled('Backdrop', tuple(c * k for c in BACKDROP), roughness=0.92, specular=0.2)
+    mat_m = principled('FloorMat', tuple(c * k for c in MAT), roughness=0.85, specular=0.25)
     prof = [(-9.0, 0.0), (2.2, 0.0)]
     radius = 2.4
     for i in range(1, 13):
@@ -235,6 +265,8 @@ def add_backdrop(collection, cam_cfg):
     ob.rotation_euler = (0, 0, math.radians(cam_cfg['azimuth']))
     ob.location.z = -0.001
 
+    if not mat:
+        return
     # Rounded floor mat under the feet.
     w, d, r, th = 0.62, 0.95, 0.08, 0.012
     pts = []
@@ -324,13 +356,15 @@ def equipment_points(cfg, mats):
 
 # ---------------------------------------------------------------- glow
 
-def build_glow(arm, glow, collection):
-    """Emissive tubes along each working bone, with dots on the joints. They are
-    parented to the bones, so they follow the solved pose every frame."""
+def build_glow(arm, glow, collection, bone_map=None):
+    """Emissive tubes along each working bone, optionally with dots on the joints. They
+    are parented to the bones, so they follow the solved pose every frame. `bone_map`
+    maps spec bone names to the armature's (for the Rigify rig: ORG bones)."""
     mat = emission('Glow', glow['colour'], 1.0)
     dot_mat = emission('GlowDot', [min(1.0, 0.3 + c) for c in glow['colour']], 1.5)
     joints = []
-    for name in glow['bones']:
+    for spec_name in glow['bones']:
+        name = bone_map.get(spec_name, spec_name) if bone_map else spec_name
         bone = arm.data.bones[name]
         cu = bpy.data.curves.new(f'glow.{name}', 'CURVE')
         cu.dimensions = '3D'
@@ -357,6 +391,31 @@ def build_glow(arm, glow, collection):
             v, f = rig._ellipsoid((0, y, 0), (glow['radius'] * 1.55,) * 3, rings=10)
             ob = rig._mesh_object(f'glow.dot.{name}.{y:.2f}', [Vector(p) for p in v], f, dot_mat, collection)
             rig.parent_to_bone(ob, arm, name)
+
+
+def apply_tint(body, colour, strength):
+    """Mix the variant colour into the clay over the 'muscle_tint' attribute (see body.muscle_tint)."""
+    for mat in body.data.materials:
+        if mat is None or not mat.use_nodes:
+            continue
+        nt = mat.node_tree
+        bsdf = next((n for n in nt.nodes if n.type == 'BSDF_PRINCIPLED'), None)
+        if bsdf is None:
+            continue
+        base = tuple(bsdf.inputs['Base Color'].default_value)
+        attr = nt.nodes.new('ShaderNodeAttribute')
+        attr.attribute_name = 'muscle_tint'
+        attr.attribute_type = 'GEOMETRY'
+        fac = nt.nodes.new('ShaderNodeMath')
+        fac.operation = 'MULTIPLY'
+        fac.inputs[1].default_value = strength
+        nt.links.new(attr.outputs['Fac'], fac.inputs[0])
+        mix = nt.nodes.new('ShaderNodeMix')
+        mix.data_type = 'RGBA'
+        mix.inputs[6].default_value = base
+        mix.inputs[7].default_value = (*colour, 1.0)
+        nt.links.new(fac.outputs[0], mix.inputs[0])
+        nt.links.new(mix.outputs[2], bsdf.inputs['Base Color'])
 
 
 # ---------------------------------------------------------------- compositor

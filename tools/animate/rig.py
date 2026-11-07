@@ -245,9 +245,15 @@ class Solver:
             m.translation = r.inverted() @ Vector(loc_body)
         return m
 
-    def fk(self, local):
+    def fk(self, local, overrides=None):
+        """Forward kinematics. `overrides` pins some bones' world matrices (for example the
+        chest and pelvis as a driven Rigify spine actually placed them); their children
+        are computed from the pinned matrices."""
         m = {}
         for n in self.order:
+            if overrides and n in overrides:
+                m[n] = overrides[n]
+                continue
             p = self.parent[n]
             m[n] = (self.rel[n] if p is None else m[p] @ self.rel[n]) @ local[n]
         return m
@@ -372,21 +378,29 @@ class Equipment:
         rot = Matrix((x, z.cross(x), z)).transposed()
         return Matrix.Translation(centre) @ rot.to_4x4()
 
-    def _hand_rot_in_weight(self, w3, fk_rot):
+    def _hand_rot_in_weight(self, w3, fk_rot, solver):
         """Hand orientations in the weight's frame, fixed for the whole clip.
 
-        With `hand_dir` the hands point that way in the weight's frame (palms
-        facing the weight's left-right axis). Otherwise the frame-0 FK
-        orientation is captured and kept.
+        With `hand_dir` the hands point that way in the weight's frame, with the palms
+        facing along the weight's left-right axis (the way they face the body at rest).
+        Otherwise the frame-0 FK orientation is captured and kept.
         """
         if self.hand_in_weight is None:
             self.hand_in_weight = {}
             for s in ('L', 'R'):
                 if self.cfg.get('hand_dir'):
                     y = (w3 @ Vector(self.cfg['hand_dir'])).normalized()
-                    x = Vector((1, 0, 0)) - y * y.x
+                    x = w3 @ Vector((1, 0, 0))
+                    x = x - y * x.dot(y)
                     x = x.normalized() if x.length > 1e-6 else Vector((0, -1, 0))
-                    world = Matrix((x, y, x.cross(y))).transposed()
+                    # The hand's local axis that points along world +X in the rest pose.
+                    r0 = solver.rest3[f'hand.{s}']
+                    lx = r0.inverted() @ Vector((1, 0, 0))
+                    lx = lx - Y * lx.dot(Y)
+                    lx.normalize()
+                    src = Matrix((Y, lx, Y.cross(lx))).transposed()
+                    dst = Matrix((y, x, y.cross(x))).transposed()
+                    world = dst @ src.inverted()
                 else:
                     world = fk_rot[s]
                 self.hand_in_weight[s] = w3.inverted() @ world
@@ -422,7 +436,7 @@ class Equipment:
             side = Vector((1, 0, 0)) - axis * axis.x
             side = side.normalized() if side.length > 1e-6 else Vector((1, 0, 0))
             rot = self._frame(Vector(), axis, side).to_3x3()
-        locked = self._hand_rot_in_weight(rot, hand_rot)
+        locked = self._hand_rot_in_weight(rot, hand_rot, solver)
         # Palms from the FK wrists with the hands already turned to their grip, so
         # the weight lands where the arms are actually reaching.
         palms = {s: m[f'hand.{s}'].translation + (locked[s] @ Y) * cfg['palm'] for s in ('L', 'R')}
@@ -468,8 +482,14 @@ def _auto_hip_drop(solver, m, refs):
     return drop
 
 
-def solve(spec, solver):
+def solve(spec, solver, hook=None):
     """Solve every frame. Returns per-frame bone locals and equipment matrices plus a report.
+
+    `hook`, when given, connects the solver to a production rig:
+      hook.spine(frame, m) poses the rig's spine from the FK result and returns the world
+          matrices of solver bones as the rig really placed them ({'hips': ..., 'chest': ...});
+          limbs are then solved from those, so they attach exactly where the rig puts them.
+      hook.limbs(frame, m) receives the final solved pose for the frame.
 
     Report fields (all should be close to 0):
       reach_error_mm   how far any IK target was out of reach
@@ -486,11 +506,21 @@ def solve(spec, solver):
     hip_drop = 0.0
     hand_ref = None
 
+    pins = {}
+
+    def fk(local):
+        return solver.fk(local, pins)
+
     def pose_frame(f):
         quats, hips, heel = sample_pose(spec, f)
         hips = [hips[0], hips[1], hips[2] - hip_drop]
         local = {n: solver.local_from_body(n, quats[n], hips if n == 'hips' else None) for n in solver.order}
-        return local, solver.fk(local), heel
+        pins.clear()
+        m = solver.fk(local)
+        if hook is not None:
+            pins.update(hook.spine(f, m))
+            m = fk(local)
+        return local, m, heel
 
     if planted:
         _, m0, _ = pose_frame(0)
@@ -520,7 +550,7 @@ def solve(spec, solver):
                 hint = _hint(solver, m, f'thigh.{s}', (0, -1, 0))
                 err = solver.two_bone(m, local, f'thigh.{s}', f'shin.{s}', f'foot.{s}', target, hint, end_rot, f'toe.{s}', trot)
                 report['reach_error_mm'] = max(report['reach_error_mm'], err * 1000)
-            m = solver.fk(local)
+            m = fk(local)
 
         eq_world, targets = None, None
         if eq is not None:
@@ -529,8 +559,10 @@ def solve(spec, solver):
             for s in ('L', 'R'):
                 hint = _hint(solver, m, f'upper_arm.{s}', (0, 1, 0))
                 err = solver.two_bone(m, local, f'upper_arm.{s}', f'forearm.{s}', f'hand.{s}', targets[s], hint, hand_rot[s])
+                if err * 1000 > report['reach_error_mm'] + 1e-6:
+                    report['worst_reach_frame'] = f
                 report['reach_error_mm'] = max(report['reach_error_mm'], err * 1000)
-            m = solver.fk(local)
+            m = fk(local)
         if eq_world:
             # Measured on the final pose: does each palm stay put on the weight?
             now = {}
@@ -552,6 +584,8 @@ def solve(spec, solver):
                 ball = m[f'toe.{s}'].translation
                 report['foot_slide_mm'] = max(report['foot_slide_mm'], math.hypot(ball.x - ball_ref.x, ball.y - ball_ref.y) * 1000)
                 report['foot_miss_mm'] = max(report['foot_miss_mm'], (m[f'foot.{s}'].translation - foot_targets[s]).length * 1000)
+        if hook is not None:
+            hook.limbs(f, m)
         frames.append({'local': local, 'world': m, 'equipment': eq_world})
     return frames, report
 
@@ -587,6 +621,24 @@ def keyframe(arm, frames, solver, equipment_obs=()):
         if ob is None or not ob.animation_data or not ob.animation_data.action:
             continue
         _set_linear(ob.animation_data.action)
+
+
+def keyframe_equipment(frames, equipment_obs):
+    """Key the equipment objects only (the body is keyed by its own rig driver)."""
+    for f, fr in enumerate(frames[:-1]):
+        for ob, mat in zip(equipment_obs, fr['equipment'] or []):
+            loc, q, _ = mat.decompose()
+            ob.rotation_mode = 'QUATERNION'
+            if ob.get('_prev_q') is not None and Quaternion(ob['_prev_q']).dot(q) < 0:
+                q = -q
+            ob['_prev_q'] = list(q)
+            ob.location = loc
+            ob.rotation_quaternion = q
+            ob.keyframe_insert('location', frame=f)
+            ob.keyframe_insert('rotation_quaternion', frame=f)
+    for ob in equipment_obs:
+        if ob.animation_data and ob.animation_data.action:
+            _set_linear(ob.animation_data.action)
 
 
 def _set_linear(action):

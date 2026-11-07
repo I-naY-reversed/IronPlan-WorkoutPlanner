@@ -24,8 +24,10 @@ VARIANTS = ('correct', 'fault')
 POSE_SCALARS = ('hips_offset', 'heel_lift')
 
 TOP_KEYS = ('id', 'name', 'fps', 'equipment', 'feet', 'poses', 'phases', 'camera', 'glow', 'variants')
-EQUIPMENT_KEYS = ('type', 'hold', 'axis', 'grip_width', 'along', 'palm', 'hand_dir', 'handle', 'plate_radius', 'plate_half', 'bar_length', 'plate_inset')
-CAMERA_DEFAULTS = {'azimuth': 180.0, 'elevation': 12.0, 'lens': 50.0, 'margin': 0.07, 'min_z': None, 'target': None, 'distance': None, 'shift_y': 0.0}
+EQUIPMENT_KEYS = ('type', 'hold', 'axis', 'grip_width', 'along', 'palm', 'hand_dir', 'finger_curl', 'handle', 'plate_radius', 'plate_half', 'bar_length', 'plate_inset')
+CAMERA_DEFAULTS = {'azimuth': 180.0, 'elevation': 12.0, 'lens': 50.0, 'margin': 0.07, 'framing': 'full_body', 'min_z': None, 'target': None, 'distance': None, 'shift_y': 0.0}
+FRAMINGS = ('full_body', 'upper_body')
+MUSCLES = ('triceps',)
 
 DEFAULT_COLOURS = {'correct': [0.02, 1.0, 0.2], 'fault': [1.0, 0.16, 0.02]}
 
@@ -204,9 +206,15 @@ def resolve(spec, variant):
         _err('camera.margin', 'must be a number from 0 to 0.9')
     if cam['target'] is not None:
         cam['target'] = _vec3(cam['target'], 'camera.target')
+    if cam['framing'] not in FRAMINGS:
+        _err('camera.framing', f'must be one of {FRAMINGS}')
 
-    _check_keys(spec['glow'], ('bones', 'joints', 'radius'), 'glow')
+    _check_keys(spec['glow'], ('bones', 'joints', 'radius', 'muscles', 'tint_strength'), 'glow')
     _num(spec['glow'], 'radius', 'glow', positive=True, optional=True)
+    _num(spec['glow'], 'tint_strength', 'glow', positive=True, optional=True)
+    for mname in spec['glow'].get('muscles', []):
+        if mname not in MUSCLES:
+            _err('glow.muscles', f'unknown muscle "{mname}". Known: {", ".join(MUSCLES)}')
     glow_bones = []
     for b in spec['glow'].get('bones', []):
         if b.endswith('.*'):
@@ -231,7 +239,9 @@ def resolve(spec, variant):
         'equipment': eq,
         'feet': feet,
         'camera': cam,
-        'glow': {'bones': glow_bones, 'joints': spec['glow'].get('joints', True), 'colour': _vec3(colour, 'colour'), 'radius': float(spec['glow'].get('radius', 0.011))},
+        'glow': {'bones': glow_bones, 'joints': spec['glow'].get('joints', False), 'colour': _vec3(colour, 'colour'),
+                 'radius': float(spec['glow'].get('radius', 0.0055)), 'muscles': list(spec['glow'].get('muscles', [])),
+                 'tint_strength': float(spec['glow'].get('tint_strength', 0.8))},
         'badge': 'check' if variant == 'correct' else 'cross',
     }
 
