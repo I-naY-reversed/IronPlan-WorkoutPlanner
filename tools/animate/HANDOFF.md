@@ -1,5 +1,10 @@
 # Handoff: exercise animation pilot
 
+> **Status (2026-11-07): parked as a fallback.** This pipeline works and is
+> committed, but it is not the active approach. Keep it as a fallback; don't
+> build on it, change its output, or integrate its clips into the app unless
+> Benjamin says so. The last state is described under "Current state" below.
+
 Written for an agent starting cold on Benjamin's Mac, which is the only working
 machine for this project (Apple M1, 8 cores, 16 GB, macOS). The checkout is
 `/Users/benjaminkaganovitch/code/IronPlan-WorkoutPlanner`. Read this first, then
@@ -78,22 +83,26 @@ blender --background --python tools/animate/render.py -- --spec tools/animate/sp
 
 ### Current state
 
-- The overhead triceps extension clips work. Every solver check is zero on
-  every frame: no reach error, hands never slide or turn on the weight, feet
-  never slide. A separate per-frame check found no hand or body vertices
-  inside the dumbbell (that check is not in the repo; the solver checks cannot
-  detect intersections, so look at stills).
-- On the Mac (M1, Eevee on Metal, 48 samples) each clip took about 2 minutes
-  for 102 frames: about 61 KB (correct) and 81 KB (fault), plus a 68 KB poster.
-- Output is 540x960, 30 fps, 3.4 s loop, H.264 High, yuv420p tagged BT.709,
-  `+faststart`, no audio, CRF 28.
-- An independent review found 18 issues, and all were fixed. The two worst
-  were hands passing through the dumbbell and the backdrop wall sitting behind
-  the camera.
-- **Weak points:** the procedural mannequin looks like a Lego figure, and the
-  renders are low resolution. That is what the plan below fixes.
-- Nothing in `mobile/` has been changed yet. See section 6 for the app
-  integration still to do.
+- **Realistic body (default):** steps 1 to 5 of the plan below are done and
+  committed. An MPFB 2 body is fitted to the symmetrized sculpt, rigged with
+  Rigify and given a masked normal map. It is driven by the solver with the rig
+  in the loop. Build it with `character.py -- build` then `-- bake`; the
+  outputs live in the gitignored `characters/`.
+- **Clips:** the overhead triceps extension renders at 1080x1920, CRF 22,
+  BT.709, `+faststart`. Correct is 487 KB and fault 557 KB, each about 17
+  minutes in Eevee at 32 samples on the M1 (about 10 s per frame). They were
+  approved at review. They are in the gitignored `out/mpfb/`, with the old Lego
+  clips in `out/lego/`.
+- **Checks:** every solver check is 0 on every frame, including the replayed
+  Rigify rig (`rig_hand_mm`, `rig_hand_deg`, `rig_foot_mm`).
+- **Look notes (section 3):** done. No joint dots, thinner glow lines, a tinted
+  triceps, a top light for the back, and the badges kept in the video.
+- **Framing:** per spec. `camera.framing` is `upper_body` for the triceps and
+  `full_body` for the goblet squat draft. The deep-stretch range of motion is
+  kept.
+- **Procedural mannequin:** still available with `--character mannequin`.
+- **Not done:** nothing in `mobile/` has changed (section 6), and the goblet
+  squat draft has never been rendered.
 
 ## 2. The plan
 
@@ -340,11 +349,13 @@ The Windows support in the code (`render_all.py`, `toolpaths.py`, pathlib,
 
 ## 8. Open questions for Benjamin
 
-1. Triceps range of motion: the current clip lowers to a deep stretch (about
-   40 degrees inside angle at the elbow). The alternative is stopping at 90
-   degrees. It is one number: `forearm.*` in the `end` pose of
-   `specs/overhead_triceps_extension.json` (`-140` now, about `-90` for 90
-   degrees).
-2. Framing: upper-body crop (current, `"min_z": 0.8`, arms large on a phone,
-   floor mat out of shot) or full body (remove `min_z`, shows the mat and the
-   stance, arms smaller).
+Settled: the deep-stretch range of motion stays, and framing is now a per-spec
+option. Still open if this fallback is ever picked up again:
+
+1. Face: MPFB's head has a real face with empty eye sockets. It is hidden from
+   behind in the triceps clip but would show in front-facing exercises. Smooth
+   it to a faceless head, or add MPFB's eyes.
+2. Grip: the hands close as fists side by side under the dumbbell's top plate.
+   A true cupped grip (palms flat under the plate) needs a custom hand pose.
+3. Render time: about 17 minutes per clip, so roughly 9 hours for 30
+   exercises with both variants.
