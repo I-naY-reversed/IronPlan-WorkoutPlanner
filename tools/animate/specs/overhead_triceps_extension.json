@@ -1,0 +1,46 @@
+{
+  "id": "overhead_triceps_extension",
+  "name": "Overhead Triceps Extension",
+  "fps": 30,
+  "equipment": {
+    "type": "dumbbell",
+    "hold": "two_hand_cup",
+    "axis": "vertical",
+    "grip_width": 0.075,
+    "along": -0.02,
+    "hand_dir": [0, 1, 0.2]
+  },
+  "feet": { "planted": true },
+  "poses": {
+    "start": {
+      "spine": [-2, 0, 0],
+      "chest": [-3, 0, 0],
+      "head": [4, 0, 0],
+      "shoulder.*": [0, -12, 0],
+      "upper_arm.*": [-168, 0, 0],
+      "forearm.*": [-22, 0, 0],
+      "thigh.*": [0, -3, 8]
+    },
+    "end": {
+      "inherit": "start",
+      "forearm.*": [-140, 0, 0]
+    }
+  },
+  "phases": [
+    { "to": "end", "seconds": 2.0, "ease": "in_out" },
+    { "to": "start", "seconds": 1.0, "ease": "in_out" },
+    { "to": "start", "seconds": 0.4 }
+  ],
+  "camera": { "azimuth": 180, "elevation": 20, "lens": 50, "margin": 0.12, "min_z": 0.8 },
+  "glow": { "bones": ["upper_arm.*", "forearm.*"], "joints": true },
+  "variants": {
+    "correct": { "caption": "Elbows forward and close to the head. Only the forearms move." },
+    "fault": {
+      "caption": "Common mistake: the elbows flare wide.",
+      "poses": {
+        "start": { "upper_arm.*": [-166, 6, 12], "forearm.*": [-32, 0, 0] },
+        "end": { "upper_arm.*": [-160, 34, 35] }
+      }
+    }
+  }
+}

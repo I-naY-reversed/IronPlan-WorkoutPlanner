@@ -1,0 +1,5 @@
+# Character source files (Mixamo or other third-party models) are never committed.
+characters/
+# Render output. Approved clips are copied to mobile/assets/exercises/.
+out/
+__pycache__/
