@@ -1,0 +1,42 @@
+{
+  "id": "goblet_squat",
+  "name": "Goblet Squat",
+  "fps": 30,
+  "equipment": { "type": "dumbbell", "hold": "two_hand_cup", "axis": "vertical", "grip_width": 0.075, "along": -0.065 },
+  "feet": { "planted": true },
+  "poses": {
+    "start": {
+      "hips_offset": [0, 0, -0.012],
+      "chest": [-4, 0, 0],
+      "upper_arm.*": [-28, 14, 0],
+      "forearm.*": [-128, 0, 0],
+      "thigh.*": [0, -7, 14]
+    },
+    "end": {
+      "inherit": "start",
+      "hips_offset": [0, 0.13, -0.46],
+      "hips": [22, 0, 0],
+      "spine": [-6, 0, 0],
+      "chest": [-8, 0, 0],
+      "head": [-8, 0, 0],
+      "upper_arm.*": [-24, 14, 0],
+      "thigh.*": [-125, -10, 18],
+      "shin.*": [115, 0, 0]
+    }
+  },
+  "phases": [
+    { "to": "end", "seconds": 1.6 },
+    { "to": "end", "seconds": 0.3 },
+    { "to": "start", "seconds": 1.2 },
+    { "to": "start", "seconds": 0.3 }
+  ],
+  "camera": { "azimuth": 60, "elevation": 10, "lens": 50, "margin": 0.1 },
+  "glow": { "bones": ["thigh.*", "shin.*"], "joints": true },
+  "variants": {
+    "correct": { "caption": "Full depth with the chest up and heels down." },
+    "fault": {
+      "caption": "Common mistake: the heels lift off the floor.",
+      "poses": { "end": { "heel_lift": 20, "hips_offset": [0, 0.06, -0.42], "hips": [30, 0, 0] } }
+    }
+  }
+}
