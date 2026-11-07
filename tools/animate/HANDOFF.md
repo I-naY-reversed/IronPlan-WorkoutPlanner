@@ -1,8 +1,9 @@
 # Handoff: exercise animation pilot
 
-Written for an agent starting cold on Benjamin's ASUS laptop (Windows 11, RTX
-3060 6 GB). Read this first, then `tools/animate/README.md` for the full spec
-format.
+Written for an agent starting cold on Benjamin's Mac, which is the only working
+machine for this project (Apple M1, 8 cores, 16 GB, macOS). The checkout is
+`/Users/benjaminkaganovitch/code/IronPlan-WorkoutPlanner`. Read this first, then
+`tools/animate/README.md` for the full spec format.
 
 House rules for this repo:
 
@@ -34,8 +35,8 @@ not new code.
 | `spec.py` | Loads and validates specs (plain Python, no Blender). `python spec.py` checks them all |
 | `badge.py` | Draws the check and cross badges as PNGs, no dependencies |
 | `toolpaths.py` | Finds `blender` and `ffmpeg` on PATH or via the `BLENDER` / `FFMPEG` environment variables |
-| `render_all.py` | Renders every spec and both variants. Use this on Windows |
-| `render_all.sh` | Same for macOS and Linux |
+| `render_all.py` | Renders every spec and both variants (any OS) |
+| `render_all.sh` | Same, from bash |
 | `test_spec.py` | Unit tests for the spec format |
 | `specs/*.json` | Shipped specs (only `overhead_triceps_extension.json` so far) |
 | `specs/drafts/goblet_squat.json` | Draft second exercise. It solves cleanly (planted feet, heel lift fault) but has never been rendered or reviewed. Drafts are not picked up by `render_all` |
@@ -58,20 +59,20 @@ Full reference: README.md, "Spec format". A spec has:
 - `glow`: which bones get lines
 - `variants.fault`: per-pose bone overrides for the mistake
 
-### How to run (PowerShell, from the repo root)
+### How to run (from the repo root)
 
-```powershell
-py tools/animate/toolpaths.py                      # confirms blender and ffmpeg are found
-py -m unittest tools/animate/test_spec.py          # 11 tests, no Blender needed
-py tools/animate/spec.py                           # validates every spec
-py tools/animate/render_all.py --samples 48        # both clips into tools/animate/out (gitignored)
-py tools/animate/render_all.py --solve-only        # solver checks only, a few seconds
-py tools/animate/render_all.py --variant fault --stills 0,30,60   # quick look at frames
+```bash
+python3 tools/animate/toolpaths.py                     # confirms blender and ffmpeg are found
+python3 -m unittest tools/animate/test_spec.py         # 11 tests, no Blender needed
+python3 tools/animate/spec.py                          # validates every spec
+python3 tools/animate/render_all.py --samples 48       # both clips into tools/animate/out (gitignored)
+python3 tools/animate/render_all.py --solve-only       # solver checks only, a few seconds
+python3 tools/animate/render_all.py --variant fault --stills 0,30,60   # quick look at frames
 ```
 
-One clip directly:
+`tools/animate/render_all.sh` does the same from bash. One clip directly:
 
-```powershell
+```bash
 blender --background --python tools/animate/render.py -- --spec tools/animate/specs/overhead_triceps_extension.json --variant correct --out tools/animate/out --samples 48
 ```
 
@@ -96,12 +97,53 @@ blender --background --python tools/animate/render.py -- --spec tools/animate/sp
 
 ## 2. The plan
 
-### Step 1. Sculpt (Benjamin does this)
+### Step 1. Sculpt (done for v1, v2 being evaluated)
 
-Benjamin generates a 3D sculpt from his reference images with Hunyuan3D 2
-(multi-view, shape only, no texture) and saves it as
-`tools/animate/characters/sculpt.glb`. Wait for that file; don't try to
-generate it yourself.
+`tools/animate/characters/sculpt.glb` (gitignored) was generated on
+2026-11-07 from `front.jpeg` and `back.jpeg`. Benjamin approved it.
+
+How it was made, so it can be reproduced:
+
+- Hugging Face Space `tencent/Hunyuan3D-2mv`, endpoint `/shape_generation`
+  (shape only, no texture), called from the terminal with `gradio_client` in a
+  throwaway venv outside the repo. It ran anonymously with no quota prompt.
+  Run `client.view_api()` first; the endpoint and parameter names come from
+  there.
+- Inputs: `mv_image_front` = `front.jpeg`, `mv_image_back` = `back.jpeg`,
+  left, right, `image` and `caption` empty.
+- Settings: the Space defaults (Turbo mode: `steps` 5, `guidance_scale` 5.0,
+  Standard decode: `octree_resolution` 256, `num_chunks` 8000,
+  `check_box_rembg` true), except `seed` fixed at 1234 with
+  `randomize_seed` false so the mesh can be reproduced. The Space reported the
+  model `hunyuan3d-dit-v2-mv-turbo`.
+- The endpoint returns a .glb directly (wrapped in a Gradio update dict:
+  the path is in `result[0]['value']`).
+
+What it is:
+
+- One watertight mesh: 60,580 vertices, 121,156 faces in Blender, 0
+  non-manifold edges. A-pose, palms forward, facing -Y like the pipeline.
+- Height 1.957 units in Hunyuan's normalised space (it fits the model into
+  roughly -1 to 1), not metres. **Scale by about 0.91 to reach 1.78 m** when
+  lining it up over the MPFB body. Leave the saved file unscaled.
+
+Known issues:
+
+- **Side seam (serious):** a deep, ragged ridge runs down each side, from the
+  shoulder blade through the glute into the back of the thigh, where the model
+  joined the front and back views. It is plain in a three-quarter rear view.
+- The back is softer than the reference: the shoulder blades and lats read
+  weakly, and there is a deep groove down the spine. This matters because the
+  triceps clips are seen from behind.
+- The fingers are partly fused. Irrelevant once the hands are masked out of
+  the bake (Step 3).
+
+Fix in progress: `sculpt_v2.glb` is generated with all four views (front, back,
+plus left and right cropped from `back_and_sides_draft.jpeg` into `left.jpeg`
+and `right.jpeg`). Check views of v1 are in `tools/animate/out/sculpt_check/`,
+v2 in `tools/animate/out/sculpt_check_v2/`. Use whichever version Benjamin
+picks; if neither is clean, smooth the seam on the sculpt (Smooth brush or a
+masked Laplacian Smooth) before baking.
 
 ### Step 2. MPFB 2 body
 
@@ -122,13 +164,19 @@ Blender; its output is CC0) with a Rigify rig.
 2. Bake the sculpt's muscle detail into a tangent-space normal map on the
    MPFB body: Cycles, Bake, Normal, Selected to Active, with a cage or extrusion
    distance large enough to cover the gap.
-3. Check seams at the shoulders, armpits and hips, where the MPFB topology
-   deforms most.
-4. Save the map as `tools/animate/characters/body_normal.png` (gitignored)
+3. **Mask the bake** so only the torso, arms and legs take the sculpt's
+   detail. Mask out the hands, feet, head and crotch: the MPFB body keeps its
+   own clean hands and feet, and the sculpt's fused fingers, feet and head
+   never reach the map. One way: a vertex group or texture mask on the MPFB
+   body, then mix the baked normal map with a flat normal (0.5, 0.5, 1.0) using
+   that mask, with a soft falloff at the wrists, ankles and neck.
+4. Check seams at the shoulders, armpits and hips, where the MPFB topology
+   deforms most, and along the sculpt's side seam (see Step 1).
+5. Save the map as `tools/animate/characters/body_normal.png` (gitignored)
    and use it in the clay material.
 
-The RTX 3060 runs Cycles bakes on OptiX. `look._enable_cycles_gpu()` already
-picks OptiX or CUDA when `--engine cycles` is used.
+Cycles bakes run on the M1 GPU through Metal. `look._enable_cycles_gpu()`
+already picks Metal when `--engine cycles` is used.
 
 ### Step 4. Drive the MPFB rig with the existing specs and solver
 
@@ -197,9 +245,10 @@ Recommended approach:
 
 ## 5. Reference images
 
-`front.jpeg` and `back.jpeg` go in `tools/animate/characters/reference/`. They
-are not in git, and Benjamin copies them onto the ASUS himself. Never upload
-them anywhere.
+`tools/animate/characters/reference/` holds `front.jpeg`, `back.jpeg` and
+`back_and_sides_draft.jpeg` (and `left.jpeg` / `right.jpeg` once cropped). They
+are not in git. Don't upload them anywhere except as Benjamin asks (they were
+sent to the Hunyuan3D Space at his request to make the sculpt).
 
 ## 6. Still to do in the app (from the original brief, not started)
 
@@ -217,9 +266,9 @@ After Benjamin approves the clips:
 5. Jest tests: media.ts only references real exercise ids, every mapped file
    exists on disk, and the sheet still renders without a clip.
 6. `npx jest`, `npx tsc --noEmit` and `npx expo lint` must show nothing new failing.
-7. Review point: run the app (`npx expo run:ios` needs a Mac with Xcode; on
-   Windows use `npx expo start --web`, or an Android emulator with
-   `npx expo run:android`) and screenshot the sheet with the clip and the toggle.
+7. Review point: run the app and screenshot the sheet with the clip and the
+   toggle. Only the Xcode Command Line Tools are installed (no full Xcode, no
+   iOS Simulator), so use `npx expo start --web` unless Benjamin installs Xcode.
 8. Stretch: render and review `specs/drafts/goblet_squat.json` (correct: full
    depth, chest up; fault: heels lifting), then move it into `specs/`.
 
@@ -228,53 +277,30 @@ Baseline on this branch, Mac, Node 22.23.4: `npm ci` clean, `npx jest` 279 of
 errors: 5 in `src/domain/__sim__/` (implicit any) and 1 for the `@/global.css`
 import in `src/constants/theme.ts`.
 
-## 7. ASUS setup checklist
+## 7. Mac setup (already done)
 
-In PowerShell:
+Installed with Homebrew on this Mac:
 
-```powershell
-winget install -e --id Git.Git
-winget install -e --id Python.Python.3.12
-winget install -e --id BlenderFoundation.Blender.LTS.5.2
-winget install -e --id Gyan.FFmpeg
-winget install -e --id OpenJS.NodeJS.22
+| Tool | Where | Notes |
+| --- | --- | --- |
+| Blender 5.2.3 LTS | `/opt/homebrew/bin/blender` | `brew install --cask blender`. Eevee runs headless on Metal |
+| ffmpeg | `/opt/homebrew/bin/ffmpeg` | `brew install ffmpeg`, has libx264 |
+| Node 22.23.4 | `/opt/homebrew/opt/node@22/bin` | `brew install node@22`. Keg-only: prefix PATH with `/opt/homebrew/opt/node@22/bin` before `npm` / `npx` |
+| Python 3.11 | `python3` | for `spec.py`, the tests and `render_all.py` |
+| Git | `git` | `user.name` / `user.email` already set to Benjamin |
+
+Quick health check from the repo root:
+
+```bash
+python3 tools/animate/toolpaths.py
+python3 -m unittest tools/animate/test_spec.py
+python3 tools/animate/render_all.py --solve-only
+export PATH=/opt/homebrew/opt/node@22/bin:$PATH
+(cd mobile && npx jest && npx tsc --noEmit)
 ```
 
-If an id is not found, look it up with `winget search <name>` and confirm with
-`winget show --id <id>`. The Blender LTS package names follow
-`BlenderFoundation.Blender.LTS.<major>.<minor>`.
-
-Open a new PowerShell window so PATH updates apply. Blender's installer does
-not add it to PATH, so point the pipeline at it:
-
-```powershell
-setx BLENDER "C:\Program Files\Blender Foundation\Blender 5.2\blender.exe"
-```
-
-Open another new window, then:
-
-```powershell
-git clone https://github.com/I-naY-reversed/IronPlan-WorkoutPlanner.git
-cd IronPlan-WorkoutPlanner
-git checkout exercise-animation-pilot
-git config user.name "Benjamin Kaganovitch"
-git config user.email "benjamink432@gmail.com"
-py tools/animate/toolpaths.py
-py -m unittest tools/animate/test_spec.py
-py tools/animate/render_all.py --solve-only
-cd mobile; npm ci; npx jest; npx tsc --noEmit; cd ..
-```
-
-Then copy the reference images into `tools/animate/characters/reference/`.
-
-Notes for Windows:
-
-- Use `py` rather than `python3` (the Microsoft Store alias for `python3` may
-  open the Store instead).
-- Eevee and Cycles both use the RTX 3060. Eevee is the default and much faster;
-  use `--engine cycles` for the normal-map bake and as a fallback.
-- `render_all.sh` keeps LF line endings via `tools/animate/.gitattributes`, so
-  it still runs under Git Bash or WSL.
+The Windows support in the code (`render_all.py`, `toolpaths.py`, pathlib,
+`.gitattributes`) stays; it is harmless on the Mac.
 
 ## 8. Open questions for Benjamin
 
