@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "dependencies": {
-    "@expo-google-fonts/archivo": "^0.4.2",
-    "@expo-google-fonts/sofia-sans": "^0.4.3",
-    "@expo-google-fonts/sofia-sans-extra-condensed": "^0.4.2",
+    "@expo-google-fonts/ibm-plex-sans": "^0.4.1",
+    "@expo-google-fonts/ibm-plex-sans-condensed": "^0.4.1",
+    "@expo-google-fonts/pt-serif": "^0.4.1",
     "@expo/ui": "~58.0.21",
     "expo": "~58.0.16",
     "expo-constants": "~58.0.12",

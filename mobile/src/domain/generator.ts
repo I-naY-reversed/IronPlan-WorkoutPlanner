@@ -375,7 +375,7 @@ export function generatePlan(profile: Profile, allHistory: LoggedSet[], today: s
   const notes: string[] = [];
   const history = allHistory.filter(plausible);
   if (profile.ageYears < 18) {
-    notes.push('Under 18: train with a qualified coach supervising. Starting weights are set extra conservatively because the research data comes from adults.');
+    notes.push('Under 18: it is advised to train with a qualified coach supervising. Starting weights are set extra conservatively because the research data comes from adults.');
   }
   const available = availableKinds(profile.equipment, profile.unit);
   const swaps = Object.entries(profile.swaps ?? {});

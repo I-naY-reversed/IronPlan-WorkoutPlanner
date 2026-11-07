@@ -1,7 +1,7 @@
 import { Children, useContext } from 'react';
 import { StyleSheet, Text, type TextProps } from 'react-native';
 
-import { CYRILLIC_FONTS, Fonts, ThemeColor, TypeScale } from '@/constants/theme';
+import { Fonts, ThemeColor, TypeScale } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { LanguageContext, translate } from '@/i18n';
 
@@ -25,15 +25,10 @@ export function ThemedText({ style, type = 'default', themeColor, children, ...r
   const theme = useTheme();
   const lang = useContext(LanguageContext);
   return (
-    <Text style={lang === 'ru' ? cyrillic([{ color: theme[themeColor ?? 'text'] }, styles[type], style]) : [{ color: theme[themeColor ?? 'text'] }, styles[type], style]} {...rest}>
+    <Text style={[{ color: theme[themeColor ?? 'text'] }, styles[type], style]} {...rest}>
       {lang === 'en' ? children : localize(children, lang)}
     </Text>
   );
-}
-
-function cyrillic(style: TextProps['style']) {
-  const flat = StyleSheet.flatten(style) ?? {};
-  return flat.fontFamily && CYRILLIC_FONTS[flat.fontFamily] ? { ...flat, fontFamily: CYRILLIC_FONTS[flat.fontFamily] } : flat;
 }
 
 function localize(children: React.ReactNode, lang: Parameters<typeof translate>[1]): React.ReactNode {
@@ -49,8 +44,8 @@ const styles = StyleSheet.create({
   small: { fontFamily: Fonts.regular, fontSize: TypeScale.sm, lineHeight: 21 },
   smallBold: { fontFamily: Fonts.semibold, fontSize: TypeScale.sm, lineHeight: 21 },
   caption: { fontFamily: Fonts.regular, fontSize: TypeScale.xs, lineHeight: 18 },
-  heading: { fontFamily: Fonts.semibold, fontSize: TypeScale.lg, lineHeight: 28 },
-  subtitle: { fontFamily: Fonts.semibold, fontSize: TypeScale.xl, lineHeight: 34 },
+  heading: { fontFamily: Fonts.serif, fontSize: TypeScale.lg, lineHeight: 28 },
+  subtitle: { fontFamily: Fonts.serif, fontSize: TypeScale.xl, lineHeight: 34 },
   label: { fontFamily: Fonts.medium, fontSize: TypeScale.sm, lineHeight: 20 },
   num: { fontFamily: Fonts.medium, fontSize: TypeScale.md, lineHeight: 24, ...tnum },
   numSmall: { fontFamily: Fonts.regular, fontSize: TypeScale.sm, lineHeight: 21, ...tnum },

@@ -14,7 +14,7 @@ import { Info } from '@/components/ui/info';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { getSets, getWeekFreeze, SETUP_RAW_NAME, type StoredSet } from '@/db/database';
 import { weeklyDose, type LoggedSet, type WeeklyDose } from '@/domain/dose';
-import { EXERCISES_BY_ID, INDIRECT_SET_WEIGHT, MUSCLE_LABELS, MUSCLES } from '@/domain/exercises';
+import { EXERCISES_BY_ID, MUSCLE_LABELS, MUSCLES } from '@/domain/exercises';
 import { COMPETITION_LIFTS, type Plan } from '@/domain/generator';
 import { fitSeries, liftPaths, PRIORS, quantileDots, windowedSeries, type LiftPath } from '@/domain/model';
 import { displayMode, type Profile } from '@/domain/profile';
@@ -103,7 +103,7 @@ export default function ProgressScreen() {
           </View>
           <MuscleMap shade={mapShade} />
           <ThemedText type="caption" themeColor="steel" style={styles.mapCaption}>
-            {selected === 0 && plan ? 'Stronger colour: closer to this week’s target. Full colour: target reached.' : 'Stronger colour: more sets that week.'}
+            {selected === 0 && plan ? 'Brighter: closer to this week’s target. Full colour: target reached.' : 'Brighter: more sets that week.'}
           </ThemedText>
           {MUSCLES.map((m, i) => {
             const v = week.muscles[m].fractionalSets;
@@ -115,7 +115,7 @@ export default function ProgressScreen() {
                 <View style={[styles.track, { backgroundColor: theme.interval }]}>
                   <View style={[styles.bar, { backgroundColor: theme.text, width: `${Math.min(100, (v / scaleMax) * 100)}%` }]} />
                   {selected === 0 && plan && plan.targets[m] > 0 ? (
-                    <View style={[styles.target, { left: `${Math.min(100, (plan.targets[m] / scaleMax) * 100)}%`, backgroundColor: theme.bracket }]} />
+                    <View style={[styles.target, { left: `${Math.min(100, (plan.targets[m] / scaleMax) * 100)}%`, backgroundColor: theme.highlight }]} />
                   ) : null}
                 </View>
                 <ThemedText type="numSmall" style={styles.value}>
@@ -128,7 +128,7 @@ export default function ProgressScreen() {
             );
           })}
           <ThemedText type="caption" themeColor="textSecondary">
-            Mark: this week&apos;s target. A muscle that only helps in a lift counts {INDIRECT_SET_WEIGHT} of a set, so totals can have decimals.
+            Mark: this week&apos;s target.
           </ThemedText>
         </>
       )}
@@ -170,8 +170,8 @@ export default function ProgressScreen() {
               <ThemedText type="smallBold">Estimated max (heaviest single rep)</ThemedText>
               {paths.length === 0 ? (
                 <ThemedText type="small" themeColor="textSecondary">
-                  The week-by-week chart starts once a lift is logged in 3 or more separate weeks. Until then, estimates (as in Goals) come from your
-                  logged sets alone, and the band narrows as weeks of logs replace the starting estimate.
+                  The week-by-week chart starts once a lift is logged in 3 separate weeks. Until then, estimates (as in Goals) come from your
+                  logged sets alone. The estimate is refined as more data is acquired.
                 </ThemedText>
               ) : (
                 <>
@@ -246,7 +246,7 @@ function LearningChart({ path, unit }: { path: LiftPath; unit: Unit }) {
           <Path d={band} fill={theme.interval} />
           <Path d={line} stroke={theme.text} strokeWidth={2} fill="none" />
           {kg.obs.map((v, i) => (v === null ? null : <Circle key={i} cx={x(i)} cy={y(v)} r={2.5} fill={theme.textSecondary} />))}
-          <Path d={`M${x(last) + 10},${y(kg.hi[last])} h-6 V${y(kg.lo[last])} h6`} stroke={theme.accent} strokeWidth={2} fill="none" strokeLinecap="square" />
+          <Path d={`M${x(last) + 10},${y(kg.hi[last])} h-6 V${y(kg.lo[last])} h6`} stroke={theme.bracket} strokeWidth={2} fill="none" strokeLinecap="square" />
           <SvgText x={x(last) + 14} y={y(kg.mid[last]) + 4} fill={theme.text} fontFamily={Fonts.semibold} fontSize={14}>
             {`${kg.mid[last].toFixed(0)} ${unit}`}
           </SvgText>
@@ -408,8 +408,8 @@ function RecordScale({ name, row, unit, sex }: { name: string; row: RecordRow; u
         <Svg width={width} height={H}>
           <Rect x={4} y={ty - 1} width={width - 8} height={2} fill={theme.interval} />
           <Rect x={x(lo)} y={ty - 4} width={Math.max(2, x(hi) - x(lo))} height={8} fill={theme.interval} />
-          <Path d={`M${x(lo) + 5},${ty - 9} h-5 v18 h5`} stroke={theme.accent} strokeWidth={2} fill="none" strokeLinecap="square" />
-          <Path d={`M${x(hi) - 5},${ty - 9} h5 v18 h-5`} stroke={theme.accent} strokeWidth={2} fill="none" strokeLinecap="square" />
+          <Path d={`M${x(lo) + 5},${ty - 9} h-5 v18 h5`} stroke={theme.bracket} strokeWidth={2} fill="none" strokeLinecap="square" />
+          <Path d={`M${x(hi) - 5},${ty - 9} h5 v18 h-5`} stroke={theme.bracket} strokeWidth={2} fill="none" strokeLinecap="square" />
           <Rect x={x(mid) - 1} y={ty - 7} width={2} height={14} fill={theme.text} />
           <Rect x={x(w) - 1} y={ty - 12} width={2} height={12} fill={theme.text} />
           <SvgText x={x(w)} y={ty - 16} fill={theme.textSecondary} fontFamily={Fonts.regular} fontSize={13} textAnchor={anchor(w, wLabel)}>
@@ -474,7 +474,7 @@ function ProgressOverTime({ history, profile, plan }: { history: LoggedSet[]; pr
   const hi = Math.max(...up, goalV ?? -Infinity, ...(fan ? fan.map((p) => p.hi) : []));
   const span = Math.max(hi - lo, hi * 0.05, 1);
   const H = 160;
-  const pad = { l: 36, r: 56, t: 24, b: 22 };
+  const pad = { l: 36, r: 64, t: 24, b: 22 };
   const x = (ms: number) => pad.l + ((ms - t0) / (t1 - t0)) * (width - pad.l - pad.r);
   const y = (v: number) => pad.t + (1 - (v - (lo - span * 0.15)) / (span * 1.3)) * (H - pad.t - pad.b);
   const line = vals.map((v, i) => `${i ? 'L' : 'M'}${x(t[i])},${y(v)}`).join(' ');
@@ -530,8 +530,8 @@ function ProgressOverTime({ history, profile, plan }: { history: LoggedSet[]; pr
             ) : null}
             {goalV !== null ? (
               <>
-                <Line x1={pad.l} x2={width - pad.r} y1={y(goalV)} y2={y(goalV)} stroke={theme.bracket} strokeWidth={1.5} strokeDasharray="5,4" />
-                <SvgText x={width - pad.r + 6} y={y(goalV) + 4} fill={theme.bracket} fontFamily={Fonts.semibold} fontSize={12}>
+                <Line x1={pad.l} x2={width - pad.r} y1={y(goalV)} y2={y(goalV)} stroke={theme.highlight} strokeWidth={1.5} strokeDasharray="5,4" />
+                <SvgText x={width - pad.r + 6} y={y(goalV) + 4} fill={theme.highlight} fontFamily={Fonts.semibold} fontSize={12}>
                   {`Goal ${Math.round(goalV)}`}
                 </SvgText>
               </>
@@ -592,8 +592,8 @@ function ProgressOverTime({ history, profile, plan }: { history: LoggedSet[]; pr
       </ThemedText>
       <Info title="How to read this chart">
         {fan
-          ? `Dots: your estimated max each day. Shaded: where you're likely to be (the middle 60% of outcomes). Dashed: the middle guess.`
-          : `Dots: your estimated max each day. Grey band: its likely range.`}
+          ? `Points: your estimated max each day. Shaded: where you're likely to be (the middle 60% of outcomes). Dashed: the median estimate.`
+          : `Points: your estimated max each day. Grey band: its likely range.`}
       </Info>
     </View>
   );

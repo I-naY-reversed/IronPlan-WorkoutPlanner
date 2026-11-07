@@ -97,10 +97,10 @@ export function BracketGlyph({ certainty, inverted = false }: { certainty: numbe
       <View style={[styles.glyphTrack, { backgroundColor: inverted ? theme.steel : theme.interval }]} />
       <View style={[styles.glyphBand, { left: W / 2 - half, width: half * 2, backgroundColor: inverted ? theme.steel : theme.bracketBand }]} />
       <View style={[styles.glyphMark, { left }]}>
-        <BracketMark side="left" height={12} color={inverted ? theme.accent : theme.bracket} />
+        <BracketMark side="left" height={12} color={inverted ? theme.bracketInverse : theme.bracket} />
       </View>
       <View style={[styles.glyphMark, { left: W / 2 + half - ARM / 2 }]}>
-        <BracketMark side="right" height={12} color={inverted ? theme.accent : theme.bracket} />
+        <BracketMark side="right" height={12} color={inverted ? theme.bracketInverse : theme.bracket} />
       </View>
       <View style={[styles.glyphTick, { left: W / 2 - 1, backgroundColor: inverted ? theme.background : theme.text }]} />
     </View>

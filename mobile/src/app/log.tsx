@@ -276,7 +276,7 @@ export default function SessionScreen() {
   const nudge = (delta: number) => {
     const base = Number.isFinite(weightKg) ? weightKg : 0;
     setWeight(fmt(Math.max(0, Math.round((base + delta) / increment) * increment)));
-    Haptics.selectionAsync().catch(() => {});
+    Haptics.selectionAsync().catch(() => { });
   };
 
   const restFor = exercise ? restSeconds(exercise, rx?.repRange) : REST_SECONDS;
@@ -284,7 +284,7 @@ export default function SessionScreen() {
     rest.stopAnimation();
     setResting(false);
     scheduleRestEnd(null);
-    if (over) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    if (over) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => { });
   };
   const runRest = (endMs: number, total: number) => {
     restEnd.current = endMs;
@@ -344,7 +344,7 @@ export default function SessionScreen() {
       setReps(String(aimReps));
       setRpe(null);
       setMissed(false);
-      Haptics.selectionAsync().catch(() => {});
+      Haptics.selectionAsync().catch(() => { });
       await reload();
       return;
     }
@@ -448,7 +448,7 @@ export default function SessionScreen() {
     setMissed(false);
     setRpe(null);
     if (rx) setReps(String(Math.round((rx.repRange[0] + rx.repRange[1]) / 2)));
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => { });
     if (!drop) startRest();
     setSetType('normal');
     await reload();
@@ -536,7 +536,7 @@ export default function SessionScreen() {
     await insertSets(db, [
       { date: today, exerciseId: exercise.id, setIndex: warmDone.length + 1, reps: r, weightKg: loadKg, rpe: null, rir: null, source: 'log', rawName: null, kind: 'warmup' },
     ]);
-    Haptics.selectionAsync().catch(() => {});
+    Haptics.selectionAsync().catch(() => { });
     await reload();
   };
 
@@ -696,37 +696,37 @@ export default function SessionScreen() {
               })}
             </View>
           ) : (
-          <>
-          <ThemedText type="small" themeColor="textSecondary">
-            RPE: 10 = no more reps possible, 9 = 1 more, 8 = 2 more, 7 = 3 more, 6 = 4 or more.
-            {rx && !rx.power ? ` Target: RPE ${rpeFor(rx.targetRir)}.` : ''}
-          </ThemedText>
-          <View style={styles.rpeGrid} accessibilityRole="radiogroup" accessibilityLabel="RPE">
-            {[RPE_STEPS.slice(0, 5), RPE_STEPS.slice(5)].map((row) => (
-              <View key={row[0]} style={styles.rpeStrip}>
-                {row.map((v) => {
-                  const target = rx && !rx.power && v === rpeFor(rx.targetRir);
-                  return (
-                    <Pressable
-                      key={v}
-                      accessibilityRole="button"
-                      accessibilityLabel={`RPE ${v}${target ? ', the target' : ''}`}
-                      onPress={() => logSet({ rpe: v, missed: false })}
-                      style={({ pressed }) => [styles.rpeCell, controlStyle(theme, pressed)]}>
-                      <ThemedText type="num">{v}</ThemedText>
-                      {target ? (
-                        <ThemedText type="caption" themeColor="steel" style={styles.targetLabel}>
-                          target
-                        </ThemedText>
-                      ) : null}
-                    </Pressable>
-                  );
-                })}
-                {row.length < 5 ? <View style={styles.rpeSpacer} /> : null}
+            <>
+              <ThemedText type="small" themeColor="textSecondary">
+                RPE: 10 = no more reps possible, 9 = 1 more, 8 = 2 more, 7 = 3 more, 6 = 4 or more.
+                {rx && !rx.power ? ` Target: RPE ${rpeFor(rx.targetRir)}.` : ''}
+              </ThemedText>
+              <View style={styles.rpeGrid} accessibilityRole="radiogroup" accessibilityLabel="RPE">
+                {[RPE_STEPS.slice(0, 5), RPE_STEPS.slice(5)].map((row) => (
+                  <View key={row[0]} style={styles.rpeStrip}>
+                    {row.map((v) => {
+                      const target = rx && !rx.power && v === rpeFor(rx.targetRir);
+                      return (
+                        <Pressable
+                          key={v}
+                          accessibilityRole="button"
+                          accessibilityLabel={`RPE ${v}${target ? ', the target' : ''}`}
+                          onPress={() => logSet({ rpe: v, missed: false })}
+                          style={({ pressed }) => [styles.rpeCell, controlStyle(theme, pressed)]}>
+                          <ThemedText type="num">{v}</ThemedText>
+                          {target ? (
+                            <ThemedText type="caption" themeColor="steel" style={styles.targetLabel}>
+                              target
+                            </ThemedText>
+                          ) : null}
+                        </Pressable>
+                      );
+                    })}
+                    {row.length < 5 ? <View style={styles.rpeSpacer} /> : null}
+                  </View>
+                ))}
               </View>
-            ))}
-          </View>
-          </>
+            </>
           )}
           <Button title="Failed a rep" variant="secondary" onPress={() => logSet({ rpe: 10, missed: true })} />
           <TextAction title="Skip rating" onPress={() => logSet({ rpe: null, missed: false })} />
@@ -738,7 +738,7 @@ export default function SessionScreen() {
             <View style={styles.setCell}>
               <Icon name="timer" size={20} color={theme.text} />
               <ThemedText type="num">
-              Rest {Math.floor(restLeft / 60)}:{String(restLeft % 60).padStart(2, '0')}
+                Rest {Math.floor(restLeft / 60)}:{String(restLeft % 60).padStart(2, '0')}
               </ThemedText>
             </View>
             <View style={styles.restActions}>
@@ -762,7 +762,7 @@ export default function SessionScreen() {
           </View>
           <View style={[styles.restBar, { backgroundColor: theme.interval }]}>
             <Animated.View
-              style={[styles.restFill, { backgroundColor: theme.bracket, width: rest.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) }]}
+              style={[styles.restFill, { backgroundColor: theme.highlight, width: rest.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }) }]}
             />
           </View>
         </View>
@@ -904,14 +904,14 @@ export default function SessionScreen() {
                     </View>
                   ) : (
                     current ? (
-                    <View style={styles.colAction}>
-                      <Pressable accessibilityRole="button" accessibilityLabel={`Log set ${i + 1}`} disabled={!valid} onPress={requestLog} style={[styles.actionButton, { backgroundColor: valid ? theme.accent : theme.backgroundElement }]}>
-                        <Icon name="check" size={20} color={theme.accentText} />
-                      </Pressable>
-                    </View>
-                  ) : (
-                    <View style={styles.colAction} />
-                  )
+                      <View style={styles.colAction}>
+                        <Pressable accessibilityRole="button" accessibilityLabel={`Log set ${i + 1}`} disabled={!valid} onPress={requestLog} style={[styles.actionButton, { backgroundColor: valid ? theme.accent : theme.backgroundElement }]}>
+                          <Icon name="check" size={20} color={theme.accentText} />
+                        </Pressable>
+                      </View>
+                    ) : (
+                      <View style={styles.colAction} />
+                    )
                   )}
                 </View>
               );
@@ -919,26 +919,26 @@ export default function SessionScreen() {
           </View>
 
           {!timed ? (
-          <View style={styles.hero}>
-            <NudgeButton label={`−${incrementLabel}`} accessibilityLabel={`Decrease weight by ${incrementLabel} ${unitName}`} onPress={() => nudge(-increment)} />
-            <View style={styles.heroLoad}>
-              <TextInput
-                ref={weightRef}
-                value={weight}
-                onChangeText={setWeight}
-                keyboardType="decimal-pad"
-                selectTextOnFocus
-                placeholder="–"
-                placeholderTextColor={theme.steel}
-                accessibilityLabel={`Weight in ${unitName}`}
-                style={[styles.heroInput, { color: theme.text }]}
-              />
-              <ThemedText type="small" themeColor="steel">
-                {ADDED_WEIGHT_LIFTS.has(exercise.id) ? `${unit} added` : `${unit}${each}`}
-              </ThemedText>
+            <View style={styles.hero}>
+              <NudgeButton label={`−${incrementLabel}`} accessibilityLabel={`Decrease weight by ${incrementLabel} ${unitName}`} onPress={() => nudge(-increment)} />
+              <View style={styles.heroLoad}>
+                <TextInput
+                  ref={weightRef}
+                  value={weight}
+                  onChangeText={setWeight}
+                  keyboardType="decimal-pad"
+                  selectTextOnFocus
+                  placeholder="–"
+                  placeholderTextColor={theme.steel}
+                  accessibilityLabel={`Weight in ${unitName}`}
+                  style={[styles.heroInput, { color: theme.text }]}
+                />
+                <ThemedText type="small" themeColor="steel">
+                  {ADDED_WEIGHT_LIFTS.has(exercise.id) ? `${unit} added` : `${unit}${each}`}
+                </ThemedText>
+              </View>
+              <NudgeButton label={`+${incrementLabel}`} accessibilityLabel={`Increase weight by ${incrementLabel} ${unitName}`} onPress={() => nudge(increment)} />
             </View>
-            <NudgeButton label={`+${incrementLabel}`} accessibilityLabel={`Increase weight by ${incrementLabel} ${unitName}`} onPress={() => nudge(increment)} />
-          </View>
           ) : null}
           {moved ? (
             <ThemedText type="smallBold" accessibilityRole="alert">
@@ -1019,24 +1019,24 @@ export default function SessionScreen() {
               />
             </>
           ) : (
-          <View style={styles.repsRow}>
-            <NudgeButton label="−1" accessibilityLabel="One rep fewer" onPress={() => setReps(String(Math.max(1, (Number(reps) || 1) - 1)))} />
-            <View style={styles.repsCentre}>
-              <TextInput
-                ref={repsRef}
-                value={reps}
-                onChangeText={setReps}
-                keyboardType="number-pad"
-                selectTextOnFocus
-                accessibilityLabel="Reps done"
-                style={[styles.repsInput, { color: theme.text }]}
-              />
-              <ThemedText type="small" themeColor="steel">
-                reps done
-              </ThemedText>
+            <View style={styles.repsRow}>
+              <NudgeButton label="−1" accessibilityLabel="One rep fewer" onPress={() => setReps(String(Math.max(1, (Number(reps) || 1) - 1)))} />
+              <View style={styles.repsCentre}>
+                <TextInput
+                  ref={repsRef}
+                  value={reps}
+                  onChangeText={setReps}
+                  keyboardType="number-pad"
+                  selectTextOnFocus
+                  accessibilityLabel="Reps done"
+                  style={[styles.repsInput, { color: theme.text }]}
+                />
+                <ThemedText type="small" themeColor="steel">
+                  reps done
+                </ThemedText>
+              </View>
+              <NudgeButton label="+1" accessibilityLabel="One rep more" onPress={() => setReps(String(Math.min(100, (Number(reps) || 0) + 1)))} />
             </View>
-            <NudgeButton label="+1" accessibilityLabel="One rep more" onPress={() => setReps(String(Math.min(100, (Number(reps) || 0) + 1)))} />
-          </View>
           )}
 
 
@@ -1045,7 +1045,7 @@ export default function SessionScreen() {
           {rx && !simple ? <KnowledgeDots filled={dots} label={certainty} /> : null}
           {rx && !rx.power && rx.loadKg === null && rx.loadSource !== 'bodyweight' && learnedSessions === 0 && done.length === 0 ? (
             <ThemedText type="small" themeColor="textSecondary">
-              No published data to start this exercise from. Pick a weight you could lift for the target reps at RPE {rpeFor(rx.targetRir)}. The
+              No published data found to start this exercise from. Pick a weight you could lift for the target reps at RPE {rpeFor(rx.targetRir)}. The
               estimate starts from that first set.
             </ThemedText>
           ) : null}
@@ -1160,34 +1160,34 @@ function MusclesSheet({ visible, onClose, exercise }: { visible: boolean; onClos
       <Pressable style={styles.scrim} onPress={onClose} accessibilityLabel="Close" />
       <View style={[styles.sheet, styles.tallSheet, { backgroundColor: theme.background }]}>
         <ScrollView contentContainerStyle={styles.howTo} showsVerticalScrollIndicator={false}>
-        <ThemedText type="heading">How to: {exercise.name}</ThemedText>
-        {cues.map((c, i) => (
-          <View key={i} style={styles.cue}>
-            <ThemedText type="numSmall" themeColor="steel">
-              {i + 1}
+          <ThemedText type="heading">How to: {exercise.name}</ThemedText>
+          {cues.map((c, i) => (
+            <View key={i} style={styles.cue}>
+              <ThemedText type="numSmall" themeColor="steel">
+                {i + 1}
+              </ThemedText>
+              <ThemedText type="small" style={styles.flex}>
+                {c}
+              </ThemedText>
+            </View>
+          ))}
+          {cues.length ? (
+            <ThemedText type="caption" themeColor="steel">
+              General guidance, not coaching. Stop if something hurts, and get in-person coaching for new heavy lifts.
             </ThemedText>
-            <ThemedText type="small" style={styles.flex}>
-              {c}
+          ) : null}
+          <ThemedText type="smallBold">Muscles worked</ThemedText>
+          <MuscleMap shade={exercise.muscles} height={220} />
+          <ThemedText type="small">
+            <ThemedText type="smallBold">Main: </ThemedText>
+            {primary.join(', ') || '–'}
+          </ThemedText>
+          {helping.length ? (
+            <ThemedText type="small" themeColor="textSecondary">
+              <ThemedText type="smallBold">Also helps: </ThemedText>
+              {helping.join(', ')}. Each set counts {INDIRECT_SET_WEIGHT} of a set for these.
             </ThemedText>
-          </View>
-        ))}
-        {cues.length ? (
-          <ThemedText type="caption" themeColor="steel">
-            General guidance, not coaching. Stop if something hurts, and get in-person coaching for new heavy lifts.
-          </ThemedText>
-        ) : null}
-        <ThemedText type="smallBold">Muscles worked</ThemedText>
-        <MuscleMap shade={exercise.muscles} height={220} />
-        <ThemedText type="small">
-          <ThemedText type="smallBold">Main: </ThemedText>
-          {primary.join(', ') || '–'}
-        </ThemedText>
-        {helping.length ? (
-          <ThemedText type="small" themeColor="textSecondary">
-            <ThemedText type="smallBold">Also helps: </ThemedText>
-            {helping.join(', ')}. Each set counts {INDIRECT_SET_WEIGHT} of a set for these.
-          </ThemedText>
-        ) : null}
+          ) : null}
         </ScrollView>
         <Button title="Close" variant="secondary" onPress={onClose} />
       </View>
@@ -1219,15 +1219,15 @@ function WhySheet({
       ? 'Strength-trial data on people of your sex, age, bodyweight and experience.'
       : rx?.loadSource === 'convention'
         ? related
-          ? `No study measured this exercise, so the start is a rough rule of thumb from your estimate for ${relatedName}. The range is wide and your first set will move it.`
-          : 'No study measured this exercise, so the start is a coaching rule of thumb. The range is wide and your first set will move it.'
+          ? `No study measured this exercise, so the start is a rough rule of thumb from your estimate for ${relatedName}. The uncertainty is large and your first set will help refine it.`
+          : 'No study measured this exercise, so the start is a coaching rule of thumb. The uncertainty is large and your first set will help refine it.'
         : rx?.loadSource === 'analogy'
-        ? `Trial data for ${relatedName}, a related lift on the same equipment, for people like you. The range is wider because the two lifts differ.`
-        : rx?.loadSource === null
-          ? simple
-            ? `No trial measured this exercise. Choose a weight where you would have ${rx.targetRir} reps left.`
-            : 'No trial measured this exercise. Choose the load that matches the target RPE.'
-          : 'Replaced by your logs.';
+          ? `Trial data for ${relatedName}, a related lift on the same equipment, for people like you. The uncertainty is larger because the two lifts differ.`
+          : rx?.loadSource === null
+            ? simple
+              ? `No trial measured this exercise. Choose a weight where you would have ${rx.targetRir} reps left.`
+              : 'No trial measured this exercise. Choose the load that matches the target RPE.'
+            : 'Replaced by your logs.';
   const effort = (r: number | null) => (r === null ? '' : simple ? `, ${r <= 6 ? '4+' : 10 - r} left` : `, RPE ${r}`);
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onClose} statusBarTranslucent>

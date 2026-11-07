@@ -17,7 +17,7 @@ export function TabBar<T extends string>({ value, onChange, options }: { value: 
             aria-selected={active}
             onPress={() => onChange(o.value)}
             hitSlop={6}
-            style={[styles.tab, active && { borderBottomColor: theme.bracket }]}>
+            style={[styles.tab, active && { borderBottomColor: theme.highlight }]}>
             <ThemedText type={active ? 'smallBold' : 'small'} themeColor={active ? 'text' : 'textSecondary'} numberOfLines={1}>
               {o.label}
             </ThemedText>

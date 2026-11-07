@@ -3,11 +3,13 @@ import type { SessionKind } from './generator';
 import type { Sport } from './sports';
 import type { Unit } from './units';
 
+import type { Language } from '@/i18n';
+
 export type Sex = 'male' | 'female';
 export type Experience = 'new' | 'some' | 'experienced';
 export type Goal = 'muscle' | 'strength' | 'general';
 export type Appearance = 'system' | 'light' | 'dark';
-import type { Language } from '@/i18n';
+export type ColorTheme = 'plate' | 'classic';
 export type SplitPreference = 'auto' | 'ppl' | 'upper_lower' | 'lower_upper' | 'lift_days' | 'full_body' | 'custom';
 export type LiftGoal = { id: string; exerciseId: string; targetKg: number; byDate: string; createdOn: string };
 export type VolumePreference = 'less' | 'standard' | 'more';
@@ -25,6 +27,7 @@ export type Profile = {
   matDays: number[];
   unit: Unit;
   appearance: Appearance;
+  colorTheme: ColorTheme;
   language?: Language;
   split: SplitPreference;
   sessionMinutes: number;
@@ -71,6 +74,7 @@ export const DEFAULT_PROFILE: Profile = {
   matDays: [],
   unit: 'kg',
   appearance: 'system',
+  colorTheme: 'plate',
   split: 'auto',
   sessionMinutes: 60,
   dayFocus: {},
@@ -178,6 +182,7 @@ export function clampProfile(p: Profile): Profile {
     showStreaks: p.showStreaks !== false,
     restTimer: p.restTimer === true,
     introSeen: p.introSeen === true,
+    colorTheme: p.colorTheme === 'classic' ? 'classic' : 'plate',
     display: p.display === 'simple' || p.display === 'detailed' ? p.display : undefined,
     awardedRecords: (p.awardedRecords ?? []).filter((r) => r && typeof r.exerciseId === 'string' && Number.isFinite(r.e1rmKg)),
     goals: (p.goals ?? []).filter((g) => g && Number.isFinite(g.targetKg) && g.targetKg > 0),

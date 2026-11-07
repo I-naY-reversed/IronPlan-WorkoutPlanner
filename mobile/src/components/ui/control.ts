@@ -14,6 +14,6 @@ export function inputStyle(theme: Palette) {
 
 export function choiceStyle(theme: Palette, selected: boolean) {
   return selected
-    ? { backgroundColor: theme.accentTint, borderColor: theme.bracket, borderWidth: 2 }
+    ? { backgroundColor: theme.accentTint, borderColor: theme.choiceBorder, borderWidth: 2 }
     : { backgroundColor: 'transparent', borderColor: theme.steel, borderWidth: OUTLINE };
 }
