@@ -107,6 +107,23 @@ export function effectiveSplit(profile: Pick<Profile, 'daysPerWeek' | 'split' | 
   return splitFor(profile.daysPerWeek, profile.split === 'auto' ? auto : profile.split);
 }
 
+export function trimToTime<T extends { exerciseId: string; sets: number }>(
+  exercises: T[],
+  limit: number,
+  minutesOf: (xs: T[]) => number,
+  isProtected: (x: T) => boolean,
+  minSets = MIN_SETS_PER_EXERCISE,
+): T[] {
+  let xs = exercises;
+  while (minutesOf(xs) > limit) {
+    const trimmable = [...xs].reverse().filter((x) => !isProtected(x));
+    const victim = trimmable.find((x) => x.sets > minSets) ?? trimmable[0];
+    if (!victim) break;
+    xs = victim.sets > minSets ? xs.map((x) => (x === victim ? { ...x, sets: x.sets - 1 } : x)) : xs.filter((x) => x !== victim);
+  }
+  return xs;
+}
+
 export function minutesFor(profile: Pick<Profile, 'sessionMinutes' | 'dayMinutes'>, weekday: number): number {
   return profile.dayMinutes?.[weekday] ?? profile.sessionMinutes;
 }
@@ -716,10 +733,9 @@ export function generatePlan(profile: Profile, allHistory: LoggedSet[], today: s
       sets.set(to, Math.min(MAX_SETS_PER_EXERCISE, (sets.get(to) ?? 0) + n));
     }
 
-    const exercises = [...sets.entries()]
+    const build = () => [...sets.entries()]
       .map(([id, n]) => {
         const { exercise, option } = eligible.find((x) => x.exercise.id === id)!;
-        for (const [m, w] of Object.entries(exercise.muscles) as [Muscle, number][]) delivered[m] += w * n;
         const required = requiredIds.has(id) || (anchorIds.has(id) && exercise.heavyCompound);
         const { repRange, targetRir } = prescriptionFor(exercise, profile, required);
         const loadKind = option.find((k) => EQUIPMENT_INFO[k].loaded);
@@ -749,10 +765,26 @@ export function generatePlan(profile: Profile, allHistory: LoggedSet[], today: s
               barKg: ex.equipment.includes('barbell') ? fromUnit(BAR[profile.unit], profile.unit) : undefined,
               firstForMuscle: !primary(e).some((m) => earlier.has(m)),
             });
-        const checkIn = !checkInPlaced && ex.exerciseId === checkInLift && !ex.power && ex.loadKg !== null;
-        if (checkIn) checkInPlaced = true;
-        return { ...ex, warmups, sessionsOfData: sessionsOfData.get(ex.exerciseId) ?? 0, locked: locked.has(ex.exerciseId), checkIn };
+        return { ...ex, warmups, sessionsOfData: sessionsOfData.get(ex.exerciseId) ?? 0, locked: locked.has(ex.exerciseId) };
       });
+    const limit = minutesFor(profile, days[sessionIndex] ?? sessionIndex);
+    const minutesOf = (xs: ReturnType<typeof build>) =>
+      Math.round(WARMUP_MINUTES + total * MINUTES_PER_SET + xs.reduce((n, e) => n + e.warmups.length, 0) * WARMUP_SET_MINUTES);
+    const protectedLift = (id: string) =>
+      locked.has(id) || requiredIds.has(id) || (anchorIds.has(id) && EXERCISES_BY_ID[id].heavyCompound) || !!EXERCISES_BY_ID[id].power;
+    const rebuild = (xs: { exerciseId: string; sets: number }[]) => {
+      sets.clear();
+      for (const x of xs) sets.set(x.exerciseId, x.sets);
+      total = xs.reduce((n, x) => n + x.sets, 0);
+      return build();
+    };
+    const fitted = trimToTime(build(), limit, (xs) => minutesOf(rebuild(xs)), (x) => protectedLift(x.exerciseId));
+    const exercises = rebuild(fitted).map((ex) => {
+      for (const [m, w] of Object.entries(EXERCISES_BY_ID[ex.exerciseId].muscles) as [Muscle, number][]) delivered[m] += w * ex.sets;
+      const checkIn = !checkInPlaced && ex.exerciseId === checkInLift && !ex.power && ex.loadKg !== null;
+      if (checkIn) checkInPlaced = true;
+      return { ...ex, checkIn };
+    });
     const warmupCount = exercises.reduce((n, e) => n + e.warmups.length, 0);
 
     usedByKind[kind].push(new Set(sets.keys()));
