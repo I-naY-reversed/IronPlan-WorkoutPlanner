@@ -22,6 +22,7 @@ import type { Posterior } from '@/domain/model';
 import { EXERCISES_BY_ID, INDIRECT_SET_WEIGHT, MUSCLE_LABELS, type Exercise, type Muscle } from '@/domain/exercises';
 import { MuscleMap } from '@/components/muscle-map';
 import { TECHNIQUE } from '@/domain/technique';
+import { ExerciseEvidence } from '@/components/evidence';
 import { BAR_KG } from '@/domain/plates';
 import { ADDED_WEIGHT_LIFTS } from '@/domain/progress';
 import { estimateFromBracket, updateAfterSet, type LoadEstimate } from '@/domain/session-update';
@@ -1176,6 +1177,7 @@ function MusclesSheet({ visible, onClose, exercise }: { visible: boolean; onClos
               General guidance, not coaching. Stop if something hurts, and get in-person coaching for new heavy lifts.
             </ThemedText>
           ) : null}
+          <ExerciseEvidence exerciseId={exercise.id} />
           <ThemedText type="smallBold">Muscles worked</ThemedText>
           <MuscleMap shade={exercise.muscles} height={220} />
           <ThemedText type="small">

@@ -1375,5 +1375,13 @@
  "Your profile says {0} kg.": "Votre profil indique {0} kg.",
  "Your profile says {0} kg. Logging keeps it current, which keeps starting weights and pull-up and dip loads accurate.": "Votre profil indique {0} kg. L'enregistrement le maintient à jour, ce qui permet de maintenir la précision des poids de départ et des charges de traction et de trempage.",
  "Your week now": "Ta semaine maintenant",
- "Your week: tap a day to change what it trains or how long it is": "Votre semaine : appuyez sur un jour pour modifier l'entraînement ou la durée"
+ "Your week: tap a day to change what it trains or how long it is": "Votre semaine : appuyez sur un jour pour modifier l'entraînement ou la durée",
+ "Split Squat (Dumbbell)": "Fente bulgare (haltères)",
+ "Calf Raise (Dumbbell)": "Mollets debout (haltère)",
+ "Technique research": "Recherche sur la technique",
+ "Free weights first": "Poids libres d’abord",
+ "No preference": "Sans préférence",
+ "Machines first": "Machines d’abord",
+ "Prefer": "Préférence",
+ "What the research says": "Ce que dit la recherche"
 }

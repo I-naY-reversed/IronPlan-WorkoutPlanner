@@ -1,5 +1,5 @@
 import { estimateOneRepMax, estimateRir, setsForStrengthDose, weekStart, weeklyDose, type LoggedSet } from './dose';
-import { availableKinds, EQUIPMENT_INFO, loadSettingsFor, minLoadKg, type EquipmentKind } from './equipment';
+import { availableKinds, EQUIPMENT_INFO, loadSettingsFor, minLoadKg, modalityOf, type EquipmentKind } from './equipment';
 import { BAR } from './plates';
 import { plausible } from './plausibility';
 import { fromUnit } from './units';
@@ -8,7 +8,7 @@ import { EXERCISES, EXERCISES_BY_ID, MUSCLE_LABELS, MUSCLES, usableOption, type 
 import { fitModel, optimizeVolume, personalization, plannedEffortWeight, potentialPct, PRIORS, progressLearned, summarize, windowedSeries, type Interval, type Posterior } from './model';
 import { startingOneRepMax } from './starting-strength';
 import FITTED from './fitted-priors.json';
-import { VOLUME_FACTOR, type Goal, type Profile, type SplitPreference } from './profile';
+import { loadPreferenceOf, VOLUME_FACTOR, type Goal, type Profile, type SplitPreference } from './profile';
 import { COMBAT_SPORTS, emphasisFor, OPT_IN, SPORT_PROFILES, type Sport } from './sports';
 
 export const DEFAULT_WEEKLY_SETS: Record<Goal, number> = {
@@ -31,6 +31,7 @@ const MIN_SETS_PER_EXERCISE = 2;
 const MAX_HEAVY_PER_SESSION = 2;
 const OVERSHOOT_PENALTY = 1;
 const MIN_HISTORY_WEEKS = 2;
+const MODALITY_BONUS = 0.25;
 
 export type SessionKind = 'full' | 'upper' | 'lower' | 'push' | 'pull' | 'legs' | 'squat_day' | 'bench_day' | 'deadlift_day';
 export const SESSION_KINDS: SessionKind[] = ['full', 'upper', 'lower', 'push', 'pull', 'legs', 'squat_day', 'bench_day', 'deadlift_day'];
@@ -374,8 +375,8 @@ export function easeAfterBigDay(
 export type WeekFreeze = { week: string; key: string; sessions: { exerciseId: string; sets: number }[][] };
 
 export function selectionKey(profile: Profile): string {
-  const { trainingDays, split, dayFocus, dayMinutes, sessionMinutes, sport, goal, experience, equipment, excludedExercises, lockedExercises, preferredExercises, volume, matDays } = profile;
-  return JSON.stringify({ trainingDays, split, dayFocus, dayMinutes, sessionMinutes, sport, goal, experience, equipment, excludedExercises, lockedExercises, preferredExercises, volume, matDays });
+  const { trainingDays, split, dayFocus, dayMinutes, sessionMinutes, sport, goal, experience, equipment, excludedExercises, lockedExercises, preferredExercises, volume, matDays, loadPreference } = profile;
+  return JSON.stringify({ trainingDays, split, dayFocus, dayMinutes, sessionMinutes, sport, goal, experience, equipment, excludedExercises, lockedExercises, preferredExercises, volume, matDays, loadPreference });
 }
 
 export function freezeOf(plan: Plan, profile: Profile, today: string): WeekFreeze {
@@ -395,6 +396,14 @@ export function generatePlan(profile: Profile, allHistory: LoggedSet[], today: s
     notes.push('Under 18: it is advised to train with a qualified coach supervising. Starting weights are set extra conservatively because the research data comes from adults.');
   }
   const available = availableKinds(profile.equipment, profile.unit);
+  const loadPreference = loadPreferenceOf(profile);
+  const modalityScore = (option: EquipmentKind[]) => {
+    if (loadPreference === 'any') return 0;
+    const m = modalityOf(option);
+    const wanted = loadPreference === 'free_weights' ? 'free' : 'machine';
+    const other = loadPreference === 'free_weights' ? 'machine' : 'free';
+    return m === wanted ? MODALITY_BONUS : m === other ? -MODALITY_BONUS : 0;
+  };
   const swaps = Object.entries(profile.swaps ?? {});
   const excluded = new Set(profile.excludedExercises);
   const preferred = new Set([...(profile.preferredExercises ?? []), ...swaps.map(([, to]) => to)]);
@@ -403,7 +412,7 @@ export function generatePlan(profile: Profile, allHistory: LoggedSet[], today: s
   let eligible = EXERCISES.flatMap((e) => {
     if (excluded.has(e.id) || e.timed) return [];
     if (e.variantOf && !preferred.has(e.id) && !profile.lockedExercises.includes(e.id)) return [];
-    const option = usableOption(e, available);
+    const option = usableOption(e, available, loadPreference);
     return option ? [{ exercise: e, option }] : [];
   });
 
@@ -708,7 +717,8 @@ export function generatePlan(profile: Profile, allHistory: LoggedSet[], today: s
           if (familiar.has(e.id)) score += 0.2;
           if (preferred.has(e.id)) score += 0.4;
           if (e.heavyCompound) score += 0.1;
-        if (option.some((k) => EQUIPMENT_INFO[k].loaded)) score += strengthGoal ? 0.35 : 0.05;
+          if (option.some((k) => EQUIPMENT_INFO[k].loaded)) score += strengthGoal ? 0.35 : 0.05;
+          score += modalityScore(option);
           if (locked.has(e.id)) score += 1;
           else if (previousSameKind.has(e.id)) score -= 0.25;
           if (!best || score > best.score) best = { e, score };
@@ -721,7 +731,8 @@ export function generatePlan(profile: Profile, allHistory: LoggedSet[], today: s
         if (!OPT_IN.has(m) || targets[m] <= 0 || delivered[m] >= targets[m]) continue;
         if (used() + MIN_SETS_PER_EXERCISE > maxSets) break;
         const options = eligible.filter(({ exercise: e }) => !e.power && e.muscles[m] === 1 && !sets.has(e.id) && !(lightLegs && heavyLegs(e)));
-        const pick = options.find(({ option }) => option.some((k) => EQUIPMENT_INFO[k].loaded)) ?? options[0];
+        const loaded = options.filter(({ option }) => option.some((k) => EQUIPMENT_INFO[k].loaded));
+        const pick = [...loaded].sort((a, b) => modalityScore(b.option) - modalityScore(a.option))[0] ?? options[0];
         if (pick) place(pick.exercise, MIN_SETS_PER_EXERCISE);
       }
     }
@@ -802,6 +813,14 @@ export function generatePlan(profile: Profile, allHistory: LoggedSet[], today: s
     };
   });
 
+  if (loadPreference === 'free_weights') {
+    const primaries = (e: Exercise) => (Object.entries(e.muscles) as [Muscle, number][]).filter(([, w]) => w === 1).map(([m]) => m);
+    const hasFree = (m: Muscle) => eligible.some(({ exercise, option }) => exercise.muscles[m] === 1 && modalityOf(option) === 'free');
+    const planned = new Set(sessions.flatMap((s) => s.exercises.map((x) => x.exerciseId)));
+    const needed = eligible.filter(({ exercise, option }) => planned.has(exercise.id) && modalityOf(option) === 'machine' && primaries(exercise).some((m) => !hasFree(m)));
+    if (needed.length) notes.push(`Free weights first, but your free weights can't train everything, so these use a machine: ${needed.map(({ exercise }) => exercise.name).join(', ')}.`);
+  }
+
   const short = MUSCLES.filter((m) => !unreachable.includes(m) && !unscheduled.includes(m) && delivered[m] < targets[m] - 1);
   if (short.length) {
     notes.push(
@@ -822,7 +841,7 @@ export function generatePlan(profile: Profile, allHistory: LoggedSet[], today: s
     notes,
     strengthOf: (id) => {
       const e = EXERCISES_BY_ID[id];
-      const kind = e && usableOption(e, available)?.find((k) => EQUIPMENT_INFO[k].loaded);
+      const kind = e && usableOption(e, available, loadPreference)?.find((k) => EQUIPMENT_INFO[k].loaded);
       return kind ? estimate(id, kind) : null;
     },
     posterior,

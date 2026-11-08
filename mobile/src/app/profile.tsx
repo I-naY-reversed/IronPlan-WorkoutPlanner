@@ -16,7 +16,7 @@ import { WeekEditor } from '@/components/week-editor';
 import { Fonts, Radius, Spacing, TypeScale } from '@/constants/theme';
 import { defaultIncrementKg, EQUIPMENT_INFO, minLoadKg, EQUIPMENT_KINDS, EQUIPMENT_PRESETS, type CustomEquipment, type EquipmentKind, type LoadSettings } from '@/domain/equipment';
 import { EXERCISES_BY_ID } from '@/domain/exercises';
-import { displayMode, EXPERIENCE_OPTIONS, GOAL_OPTIONS, POPULATION_MEANS, PROFILE_LIMITS, REMINDER_OPTIONS, SESSION_MINUTE_OPTIONS, TIME_OPTIONS, UNIT_OPTIONS, VOLUME_OPTIONS, type Profile } from '@/domain/profile';
+import { displayMode, EXPERIENCE_OPTIONS, GOAL_OPTIONS, POPULATION_MEANS, PROFILE_LIMITS, LOAD_PREFERENCE_OPTIONS, loadPreferenceOf, REMINDER_OPTIONS, SESSION_MINUTE_OPTIONS, TIME_OPTIONS, UNIT_OPTIONS, VOLUME_OPTIONS, type Profile } from '@/domain/profile';
 import { allowReminders } from '@/state/reminders';
 import { MAX_LOAD_KG } from '@/domain/plausibility';
 import { formatLoad, fromUnit, toUnit } from '@/domain/units';
@@ -199,6 +199,17 @@ export default function SettingsScreen() {
               onChange={(id) => update((p) => ({ ...p, equipment: { ...EQUIPMENT_PRESETS.find((x) => x.id === id)!.setup, custom: p.equipment.custom } }))}
               options={EQUIPMENT_PRESETS.map((x) => ({ value: x.id, label: x.label }))}
             />
+            <Segmented
+              label="Prefer"
+              value={loadPreferenceOf(profile)}
+              onChange={(loadPreference) => update((p) => ({ ...p, loadPreference }))}
+              options={LOAD_PREFERENCE_OPTIONS}
+            />
+            <Info title="Free weights or machines">
+              Both build similar muscle, but strength carries over best to the tool you train with. By default the plan has
+              no preference. With free weights first, it uses barbells, dumbbells and kettlebells where it can and fills gaps
+              with your machines. Turn off what your gym does not have below.
+            </Info>
             {EQUIPMENT_KINDS.map((kind, i) => {
               const owned = profile.equipment.owned[kind];
               const info = EQUIPMENT_INFO[kind];

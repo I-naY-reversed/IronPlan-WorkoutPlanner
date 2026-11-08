@@ -1,6 +1,7 @@
 import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Screen, useBand } from '@/components/screen';
+import { TechniqueSection } from '@/components/evidence';
 import { ThemedText } from '@/components/themed-text';
 import { TextAction } from '@/components/ui/button';
 import { Info } from '@/components/ui/info';
@@ -105,6 +106,7 @@ export function Sources({ onBack, profile }: { onBack: () => void; profile: Pick
             ))}
           </View>
         ))}
+        <TechniqueSection />
         <View style={styles.group}>
           <ThemedText type="heading">Model assumptions</ThemedText>
           {FITTED.decisions.map((d, i) => (

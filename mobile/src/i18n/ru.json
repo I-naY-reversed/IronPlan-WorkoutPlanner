@@ -1379,5 +1379,13 @@
  "Your profile says {0} kg.": "В вашем профиле указано {0} кг.",
  "Your profile says {0} kg. Logging keeps it current, which keeps starting weights and pull-up and dip loads accurate.": "В вашем профиле указано {0} кг. Ведение журнала поддерживает актуальность данных, что обеспечивает точность стартовых весов, а также нагрузок на подтягивания и опускания.",
  "Your week now": "Ваша неделя сейчас",
- "Your week: tap a day to change what it trains or how long it is": "Ваша неделя: коснитесь дня, чтобы изменить программу тренировок или ее продолжительность."
+ "Your week: tap a day to change what it trains or how long it is": "Ваша неделя: коснитесь дня, чтобы изменить программу тренировок или ее продолжительность.",
+ "Split Squat (Dumbbell)": "Болгарские выпады (гантели)",
+ "Calf Raise (Dumbbell)": "Подъёмы на носки (гантель)",
+ "Technique research": "Исследования техники",
+ "Free weights first": "Сначала свободные веса",
+ "No preference": "Без предпочтений",
+ "Machines first": "Сначала тренажёры",
+ "Prefer": "Предпочтение",
+ "What the research says": "Что говорят исследования"
 }

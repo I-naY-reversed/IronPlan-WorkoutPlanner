@@ -1,7 +1,7 @@
-import { availableKinds } from './equipment';
+import { availableKinds, preferenceRank } from './equipment';
 import { EXERCISES, EXERCISES_BY_ID, usableOption, type Exercise, type Muscle } from './exercises';
 import { effectiveSplit, type SessionKind } from './generator';
-import type { Profile } from './profile';
+import { loadPreferenceOf, type Profile } from './profile';
 
 const primary = (e: Exercise) => (Object.entries(e.muscles) as [Muscle, number][]).filter(([, w]) => w === 1).map(([m]) => m);
 
@@ -12,9 +12,11 @@ export function swapOptions(exerciseId: string, profile: Profile): Exercise[] {
   const excluded = new Set(profile.excludedExercises);
   const targets = primary(from);
   const overlap = (e: Exercise) => (Object.entries(from.muscles) as [Muscle, number][]).reduce((s, [m, w]) => s + Math.min(w, e.muscles[m] ?? 0), 0);
+  const preference = loadPreferenceOf(profile);
+  const rank = (e: Exercise) => preferenceRank(usableOption(e, available, preference) ?? [], preference);
   return EXERCISES.filter(
     (e) => e.id !== from.id && !excluded.has(e.id) && !e.timed && !!e.power === !!from.power && primary(e).some((m) => targets.includes(m)) && usableOption(e, available),
-  ).sort((a, b) => overlap(b) - overlap(a) || a.name.localeCompare(b.name));
+  ).sort((a, b) => overlap(b) - overlap(a) || rank(a) - rank(b) || a.name.localeCompare(b.name));
 }
 
 export function applySwap(profile: Profile, from: string, to: string): Profile {

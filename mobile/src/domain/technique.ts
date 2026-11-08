@@ -193,6 +193,12 @@ export const TECHNIQUE: Record<string, string[]> = {
     'Push up through the front foot.',
     'Common fault: wobbling. Hold something for balance at first.',
   ],
+  dumbbell_split_squat: [
+    'A dumbbell in each hand, arms hanging. Rear foot on a bench or the floor behind you.',
+    'Lower straight down until the back knee is close to the floor and the front thigh is about level.',
+    'Push up through the whole front foot. Do all reps on one side, then switch.',
+    'Common fault: a short stride that pushes the front knee far forward and the heel up.',
+  ],
   leg_extension: [
     'Knee joint lined up with the machine pivot, pad on the lower shin.',
     'Straighten the legs fully and pause briefly.',
@@ -252,6 +258,12 @@ export const TECHNIQUE: Record<string, string[]> = {
     'Lower the heels for a full stretch.',
     'Rise as high as you can and pause briefly.',
     'Common fault: bending the knees to push the weight.',
+  ],
+  dumbbell_calf_raise: [
+    'Dumbbell in one hand, the ball of the same foot on a step, other hand on a wall for balance.',
+    'Lower the heel below the step for a full stretch and hold it for a moment.',
+    'Rise as high as you can, then lower slowly.',
+    'Common fault: bouncing at the bottom. The stretched part of the rep is the part to keep.',
   ],
   hip_adduction: [
     'Sit tall with the pads on the inner thighs.',
