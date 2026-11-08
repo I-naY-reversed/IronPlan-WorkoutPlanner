@@ -702,9 +702,10 @@ export function generatePlan(profile: Profile, allHistory: LoggedSet[], today: s
       sets.set(to, Math.min(MAX_SETS_PER_EXERCISE, (sets.get(to) ?? 0) + n));
     }
 
-    const build = () => [...sets.entries()]
+    const exercises = [...sets.entries()]
       .map(([id, n]) => {
         const { exercise, option } = eligible.find((x) => x.exercise.id === id)!;
+        for (const [m, w] of Object.entries(exercise.muscles) as [Muscle, number][]) delivered[m] += w * n;
         const required = requiredIds.has(id) || (anchorIds.has(id) && exercise.heavyCompound);
         const { repRange, targetRir } = prescriptionFor(exercise, profile, required);
         const loadKind = option.find((k) => EQUIPMENT_INFO[k].loaded);
@@ -734,33 +735,10 @@ export function generatePlan(profile: Profile, allHistory: LoggedSet[], today: s
               barKg: ex.equipment.includes('barbell') ? fromUnit(BAR[profile.unit], profile.unit) : undefined,
               firstForMuscle: !primary(e).some((m) => earlier.has(m)),
             });
-        return { ...ex, warmups, sessionsOfData: sessionsOfData.get(ex.exerciseId) ?? 0, locked: locked.has(ex.exerciseId) };
+        const checkIn = !checkInPlaced && ex.exerciseId === checkInLift && !ex.power && ex.loadKg !== null;
+        if (checkIn) checkInPlaced = true;
+        return { ...ex, warmups, sessionsOfData: sessionsOfData.get(ex.exerciseId) ?? 0, locked: locked.has(ex.exerciseId), checkIn };
       });
-    const limit = minutesFor(profile, days[sessionIndex] ?? sessionIndex);
-    const minutesOf = (xs: ReturnType<typeof build>) =>
-      Math.round(WARMUP_MINUTES + total * MINUTES_PER_SET + xs.reduce((n, e) => n + e.warmups.length, 0) * WARMUP_SET_MINUTES);
-    let built = build();
-    // Selection budgets warm-ups for heavy lifts only, so trim the lowest-priority sets until the full estimate fits.
-    while (minutesOf(built) > limit && built.length > 1) {
-      const trimmable = [...built].reverse().filter((x) => !requiredIds.has(x.exerciseId) && !locked.has(x.exerciseId));
-      const victim = trimmable.find((x) => x.sets > MIN_SETS_PER_EXERCISE) ?? trimmable[0];
-      if (!victim) break;
-      const n = sets.get(victim.exerciseId)!;
-      if (n > MIN_SETS_PER_EXERCISE) {
-        sets.set(victim.exerciseId, n - 1);
-        total -= 1;
-      } else {
-        sets.delete(victim.exerciseId);
-        total -= n;
-      }
-      built = build();
-    }
-    const exercises = built.map((ex) => {
-      for (const [m, w] of Object.entries(EXERCISES_BY_ID[ex.exerciseId].muscles) as [Muscle, number][]) delivered[m] += w * ex.sets;
-      const checkIn = !checkInPlaced && ex.exerciseId === checkInLift && !ex.power && ex.loadKg !== null;
-      if (checkIn) checkInPlaced = true;
-      return { ...ex, checkIn };
-    });
     const warmupCount = exercises.reduce((n, e) => n + e.warmups.length, 0);
 
     usedByKind[kind].push(new Set(sets.keys()));

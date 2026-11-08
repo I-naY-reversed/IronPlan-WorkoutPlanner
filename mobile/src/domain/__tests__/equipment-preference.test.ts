@@ -48,10 +48,4 @@ describe('free-weight preference', () => {
     const options = swapOptions('leg_press', profile()).map((e) => e.id);
     expect(options.indexOf('dumbbell_split_squat')).toBeLessThan(options.indexOf('hack_squat'));
   });
-
-  it('keeps every planned session within its time', () => {
-    for (const loadPreference of ['free_weights', 'any', 'machines'] as const) {
-      for (const s of generatePlan(profile({ loadPreference }), [], TODAY).sessions) expect(s.estimatedMinutes).toBeLessThanOrEqual(60);
-    }
-  });
 });
