@@ -2,7 +2,7 @@
   "expo": {
     "name": "IronPlan",
     "slug": "bracket",
-    "version": "0.15.14",
+    "version": "0.16.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "bracket",
@@ -20,7 +20,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "app.bracket.training",
-      "versionCode": 44
+      "versionCode": 45
     },
     "web": {
       "output": "single",
