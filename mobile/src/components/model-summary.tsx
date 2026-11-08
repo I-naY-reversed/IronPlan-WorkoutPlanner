@@ -28,7 +28,7 @@ export function ModelSection({ model, settled, part = 'summary' }: { model: Mode
         <Fact
           index={1}
           label="Hard sets per main muscle, each week"
-          detail={`your plan's weekly target, ${model.volumeSource === 'model' ? 'where extra sets stop adding much' : 'research default'}; ${model.volumeSource === 'model' && model.lifts > 0 ? 'from your logs' : 'research average'}`}>
+          detail={`your plan's weekly target, ${model.volumeSource === 'model' ? 'experimental: where extra sets stop adding much' : 'research default'}; ${model.volumeSource === 'model' && model.lifts > 0 ? 'from your logs' : 'research average'}`}>
           <Estimate
             value={model.recommendedSets}
             low={model.volumeSource === 'model' ? model.recommendedSetsRange.low : undefined}

@@ -521,6 +521,13 @@ export function generatePlan(profile: Profile, allHistory: LoggedSet[], today: s
 
   const lastTrained = new Map<string, string>();
   for (const s of history) if (s.date <= today && s.date > (lastTrained.get(s.exerciseId) ?? '')) lastTrained.set(s.exerciseId, s.date);
+  const previousSession = new Map<string, LoggedSet[]>();
+  for (const s of history) {
+    if (s.date >= today || s.drop) continue;
+    const sets = previousSession.get(s.exerciseId);
+    if (!sets || s.date > sets[0].date) previousSession.set(s.exerciseId, [s]);
+    else if (s.date === sets[0].date) sets.push(s);
+  }
   const delivered = Object.fromEntries(MUSCLES.map((m) => [m, 0])) as Record<Muscle, number>;
   const counts = Object.fromEntries(SESSION_KINDS.map((k) => [k, 0])) as Record<SessionKind, number>;
   const usedByKind = Object.fromEntries(SESSION_KINDS.map((k) => [k, []])) as unknown as Record<SessionKind, Set<string>[]>;
@@ -548,6 +555,24 @@ export function generatePlan(profile: Profile, allHistory: LoggedSet[], today: s
     let loadKg = roundDown(Math.exp(centre) / divisor, incrementKg);
     let loadLow = Math.max(0, Math.min(loadKg, roundDown(Math.exp(est.mean - est.sd) / divisor, incrementKg)));
     let loadHigh = Math.max(loadKg + incrementKg, roundUp(Math.exp(est.mean + est.sd) / divisor));
+    let source = est.source;
+    const previous = previousSession.get(id);
+    const top = previous ? Math.max(...previous.map((s) => s.weightKg)) : 0;
+    const topSets = previous?.filter((s) => s.weightKg === top) ?? [];
+    const unseen = topSets.length > 0 && topSets.every((s) => estimateOneRepMax(s.weightKg, s.reps, estimateRir(s).rir) === null);
+    if (previous && (fromPrior || unseen)) {
+      const cleared = topSets.every((s) => {
+        const effort = estimateRir(s);
+        return !s.failed && s.reps >= repRange[1] && effort.observed && effort.rir >= targetRir;
+      });
+      const progressed = cleared ? top + incrementKg : top;
+      if (progressed > loadKg) {
+        loadKg = progressed;
+        loadLow = Math.min(loadKg, Math.max(loadLow, top));
+        loadHigh = Math.max(loadHigh, loadKg + incrementKg);
+        source = 'log';
+      }
+    }
     let cappedByMax = false;
     if (maxKg) {
       if (loadKg > maxKg) {
@@ -563,8 +588,8 @@ export function generatePlan(profile: Profile, allHistory: LoggedSet[], today: s
       loadKg = minKg;
       loadHigh = Math.max(loadHigh, minKg);
     }
-    const liftMoreShare = centre !== est.mean && !emptyBar && est.source !== 'convention' ? (z === MINOR_START_Z ? 0.9 : 0.8) : null;
-    return { loadKg, loadLow, loadHigh, cappedByMax, emptyBar, liftMoreShare, loadSource: est.source, reentryWeeks };
+    const liftMoreShare = source === est.source && centre !== est.mean && !emptyBar && est.source !== 'convention' ? (z === MINOR_START_Z ? 0.9 : 0.8) : null;
+    return { loadKg, loadLow, loadHigh, cappedByMax, emptyBar, liftMoreShare, loadSource: source, reentryWeeks };
   };
 
   const sessions = split.map((kind, sessionIndex): PlannedSession => {
