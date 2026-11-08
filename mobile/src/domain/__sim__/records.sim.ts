@@ -2,7 +2,7 @@ import { MIN_RECORD_WEEKS } from '../engagement';
 import { DAY_SHARE, fitSeries, liftPaths, mulberry32, normal, PRIORS, weeklyObservation, type LiftSeries } from '../model';
 
 const USERS = Number(process.env.SIM_USERS ?? 40);
-const KS = (process.env.SIM_KS ?? '0.1,0.25,0.5,0.75').split(',').map(Number);
+const KS: number[] = (process.env.SIM_KS ?? '0.1,0.25,0.5,0.75').split(',').map(Number);
 const RATES = [0, 0.0017, 0.005, 0.015];
 const K_EARLY = Number(process.env.SIM_K_EARLY ?? 0);
 const [SESSIONS, SETS] = (process.env.SIM_LOG ?? '2x3').split('x').map(Number);

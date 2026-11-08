@@ -6,7 +6,7 @@ import { clampProfile, DEFAULT_PROFILE, type Profile } from '../profile';
 
 const WEEKS = Number(process.env.SIM_WEEKS ?? 26);
 const SEEDS = Number(process.env.SIM_SEEDS ?? 6);
-const ONLY = process.env.SIM_SCENARIOS?.split(',');
+const ONLY: string[] | undefined = process.env.SIM_SCENARIOS?.split(',');
 const EXPLORE = process.env.SIM_EXPLORE === '1';
 const START = '2026-01-05';
 
