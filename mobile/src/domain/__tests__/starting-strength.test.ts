@@ -1,5 +1,5 @@
 import { DEFAULT_PROFILE } from '../profile';
-import { ANALOGY_EXTRA_SD, startingOneRepMax } from '../starting-strength';
+import { ANALOGY_EXTRA_SD, relatedLiftOf, startingOneRepMax } from '../starting-strength';
 import { fitSeries, PRIORS, type LiftSeries } from '../model';
 import FITTED from '../fitted-priors.json';
 
@@ -48,6 +48,20 @@ describe('startingOneRepMax', () => {
       expect(startingOneRepMax(id, kind, base)?.source).toBe('convention');
     }
     expect(startingOneRepMax('biceps_curl', 'bands', base)).toBeNull();
+  });
+
+  it('labels the dumbbell calf raise and split squat ratios as rules of thumb', () => {
+    for (const [id, kind, from, fromKind, ratio] of [
+      ['dumbbell_calf_raise', 'dumbbells', 'leg_press', 'leg_press', 0.1],
+      ['dumbbell_split_squat', 'dumbbells', 'back_squat', 'barbell', 0.2],
+    ] as const) {
+      const guess = startingOneRepMax(id, kind, base)!;
+      const source = startingOneRepMax(from, fromKind, base)!;
+      expect(guess.source).toBe('convention');
+      expect(relatedLiftOf(id)).toBe(from);
+      expect(Math.exp(guess.logOneRm - source.logOneRm)).toBeCloseTo(ratio);
+      expect(guess.sd).toBeGreaterThan(source.sd);
+    }
   });
 });
 
