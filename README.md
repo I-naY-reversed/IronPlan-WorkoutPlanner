@@ -43,7 +43,7 @@ We plot the results from a simulation of 90 users over 26 weeks, each with a kno
 <table>
 <tr>
   <td><img width="100%" alt="Calibration of the app's ranges" src="analysis/optimization/figures/calibration.png"/></td>
-  <td><img width="100%" alt="Regret of the app and the default volume" src="analysis/optimization/figures/failed.png"/></td>
+  <td><img width="100%" alt="Failed reps, app vs. double progression" src="analysis/optimization/figures/failed.png"/></td>
 </tr>
 </table>
 
