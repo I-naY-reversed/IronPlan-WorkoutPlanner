@@ -1,5 +1,6 @@
 dist/
-analysis/
+analysis/*
+!analysis/optimization/
 docs/
 !mobile/docs/
 mobile/docs/*

@@ -28,12 +28,21 @@ plt.rcParams.update({
     "ytick.labelsize": 7, "legend.fontsize": 6.5, "legend.frameon": False, "axes.linewidth": 0.6,
     "axes.spines.top": False, "axes.spines.right": False, "xtick.major.width": 0.6, "ytick.major.width": 0.6,
     "xtick.major.size": 2.5, "ytick.major.size": 2.5, "axes.grid": False, "text.color": INK, "axes.labelcolor": INK,
-    "xtick.color": INK, "ytick.color": INK, "savefig.dpi": 300, "savefig.bbox": "tight",
+    "xtick.color": INK, "ytick.color": INK, "savefig.dpi": 300,
 })
 
 people = json.loads((HERE / "results-app.json").read_text())["people"]
 final = max(c["week"] for p in people for c in p["checkpoints"])
 FIGURES.mkdir(exist_ok=True)
+
+
+PANEL = {"figsize": (3.0, 3.2), "layout": {"left": 0.17, "right": 0.97, "bottom": 0.26, "top": 0.97}}
+
+
+def panel():
+    fig, ax = plt.subplots(figsize=PANEL["figsize"])
+    fig.subplots_adjust(**PANEL["layout"])
+    return fig, ax
 
 
 def last(p):
@@ -44,7 +53,7 @@ def coverage(group, level):
     return 100 * np.mean([last(p)[f"lo{level}"] <= last(p)["optimum"] <= last(p)[f"hi{level}"] for p in group])
 
 
-fig, ax = plt.subplots(figsize=(3.0, 3.0))
+fig, ax = panel()
 ax.plot([0, 100], [0, 100], color=MUTED, lw=0.8, ls=":", zorder=1)
 ax.annotate("y = x", (97, 97), ha="right", va="top", xytext=(0, -6), textcoords="offset points", fontsize=6.5, color=MUTED)
 for name, c in COHORTS.items():
@@ -56,7 +65,7 @@ ax.set_xlim(40, 100)
 ax.set_ylim(0, 100)
 ax.set_xlabel("Nominal coverage (%)")
 ax.set_ylabel("Empirical coverage (%)")
-ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.24), ncol=2, handlelength=2.2, columnspacing=1.2)
+ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.2), ncol=2, handlelength=2.2, columnspacing=1.2)
 fig.savefig(FIGURES / "calibration.png")
 plt.close(fig)
 
@@ -70,12 +79,12 @@ def failed(p):
 app_failed = [failed(p) for p in people]
 double_failed = [failed(double[p["id"]]) for p in people]
 print("median failed sets: app %.1f%%, double %.1f%%" % (np.median(app_failed), np.median(double_failed)))
-fig, ax = plt.subplots(figsize=(3.2, 2.4))
+fig, ax = panel()
 bins = np.arange(0, max(double_failed) + 2.5, 2.5)
 ax.hist(app_failed, bins, color=INK, edgecolor="white", lw=0.4, label="App")
 ax.hist(double_failed, bins, histtype="step", color=MUTED, lw=0.9, label="Double progression")
 ax.set_xlabel(f"Failed sets, weeks {final // 2}–{final} (%)")
 ax.set_ylabel("Simulated users")
-ax.legend(loc="upper right")
+ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.2), ncol=2, handlelength=2.2, columnspacing=1.2)
 fig.savefig(FIGURES / "failed.png")
 plt.close(fig)
