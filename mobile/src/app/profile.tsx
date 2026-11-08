@@ -5,7 +5,6 @@ import { Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'reac
 import { ExercisePicker } from '@/components/exercise-picker';
 import { OnCard, Screen, useBand } from '@/components/screen';
 import { Sources } from '@/components/sources';
-import { TechniqueLibrary } from '@/components/evidence';
 import { ThemedText } from '@/components/themed-text';
 import { Button, TextAction } from '@/components/ui/button';
 import { NumberField } from '@/components/ui/number-field';
@@ -31,7 +30,7 @@ export default function SettingsScreen() {
   const theme = useTheme();
   const band = useBand();
   const { profile, update: save } = useProfile();
-  const [view, setView] = useState<'main' | 'exclude' | 'lock' | 'prefer' | 'sources' | 'technique'>('main');
+  const [view, setView] = useState<'main' | 'exclude' | 'lock' | 'prefer' | 'sources'>('main');
   const [customName, setCustomName] = useState('');
   const [customKind, setCustomKind] = useState<EquipmentKind>('dumbbells');
   const [reminderNote, setReminderNote] = useState<string | null>(null);
@@ -67,7 +66,6 @@ export default function SettingsScreen() {
   };
 
   if (view === 'sources') return <Sources onBack={() => setView('main')} profile={profile} />;
-  if (view === 'technique') return <TechniqueLibrary onBack={() => setView('main')} />;
   if (view === 'lock') {
     return (
       <Screen title="Lock an exercise" subtitle="Kept in your plan every week">
@@ -484,17 +482,6 @@ export default function SettingsScreen() {
             </ThemedText>
             <Button title="Import history" variant="secondary" onPress={() => router.push('/import')} />
           </Section>
-
-          <View style={styles.field}>
-            <Pressable accessibilityRole="link" onPress={() => setView('technique')} style={styles.link}>
-              <ThemedText themeColor="link" style={styles.underline}>
-                Technique research
-              </ThemedText>
-              <ThemedText type="caption" themeColor="steel">
-                Form, grip, mind-muscle connection and exercise choice, from peer-reviewed studies
-              </ThemedText>
-            </Pressable>
-          </View>
 
           <View style={styles.field}>
             <Pressable accessibilityRole="link" onPress={() => setView('sources')} style={styles.link}>
