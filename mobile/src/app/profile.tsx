@@ -186,7 +186,7 @@ export default function SettingsScreen() {
             </View>
             <Segmented label="Weekly volume" value={profile.volume} onChange={(volume) => update((p) => ({ ...p, volume }))} options={VOLUME_OPTIONS} />
             <ThemedText type="caption" themeColor="textSecondary">
-              Less or More: 25% fewer or more sets, phased in.
+              Less or More: 25% fewer or more sets, phased in. Recommended is an experimental estimate from your logs, except for Hypertrophy, which uses the research default.
             </ThemedText>
           </Section>
         ) : null}
@@ -311,7 +311,7 @@ export default function SettingsScreen() {
                 if (v === -1) return update((p) => ({ ...p, reminderMinutes: null }));
                 const ok = await allowReminders();
                 if (!ok) {
-                  setReminderNote('Notifications are off for Ironplan. Turn them on in your phone settings to get reminders.');
+                  setReminderNote('Notifications are off for IronPlan. Turn them on in your phone settings to get reminders.');
                   return;
                 }
                 setReminderNote(null);

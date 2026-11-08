@@ -35,7 +35,7 @@ const cache: Record<string, Map<string, string>> = { fr: new Map(), ru: new Map(
 const KEEP = new Set(LANGUAGES.map((l) => l.label));
 
 const LATIN_LEFT = /[A-Za-z]{2,}/;
-const KEEP_LATIN = /\b(RPE|RIR|e1RM|1RM|IPF|OpenIPF|CSV|Strong|Hevy|Ironplan|Streetlifting|Muay|Thai)\b/g;
+const KEEP_LATIN = /\b(RPE|RIR|e1RM|1RM|IPF|OpenIPF|CSV|Strong|Hevy|IronPlan|Streetlifting|Muay|Thai)\b/g;
 
 export function translate(text: string, lang: Language, depth = 0): string {
   if (lang === 'en' || !/[A-Za-z]/.test(text) || KEEP.has(text)) return text;

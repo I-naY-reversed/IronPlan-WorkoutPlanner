@@ -35,7 +35,7 @@ export async function scheduleReminders(reminders: Reminder[]) {
     }
     for (const r of reminders) {
       await Notifications.scheduleNotificationAsync({
-        content: { title: 'Ironplan', body: r.body },
+        content: { title: 'IronPlan', body: r.body },
         trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: r.at, channelId: 'training' },
       });
     }

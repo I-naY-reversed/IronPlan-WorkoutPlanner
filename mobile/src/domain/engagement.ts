@@ -439,7 +439,7 @@ export function weekSummaryText(opts: {
   }
   const next = opts.nextSessions.map((s) => `${WEEKDAY_NAMES[s.weekday].slice(0, 3)} ${s.title}`).join(', ');
   if (next) lines.push(`Plan: ${next}.`);
-  lines.push('Sent from Ironplan');
+  lines.push('Sent from IronPlan');
   return lines.join('\n');
 }
 
