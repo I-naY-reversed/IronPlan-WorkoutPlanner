@@ -1,0 +1,21 @@
+authors,year,title,venue,volume,pages,doi,url,used_in
+Androulakis-Korakakis et al.,2021,The Minimum Effective Training Dose Required for 1RM Strength in Powerlifters,Frontiers in Sports and Active Living,3,713655,10.3389/fspor.2021.713655,,app
+Chaabene et al.,2017,Physical and Physiological Attributes of Wrestlers: An Update,Journal of Strength and Conditioning Research,31,1411-1442,10.1519/jsc.0000000000001738,,app
+Free Exercise DB,,Free Exercise DB,Dataset,,,,https://github.com/yuhonas/free-exercise-db,analysis; app
+Fryar et al.,2021,"Anthropometric Reference Data for Children and Adults: United States, 2015–2018","Vital and Health Statistics, Series 3",46,,,https://stacks.cdc.gov/view/cdc/100478,app
+Grgic et al.,2020,Test–Retest Reliability of the One-Repetition Maximum (1RM) Strength Assessment: a Systematic Review,Sports Medicine - Open,6,31,10.1186/s40798-020-00260-z,,priors; app
+Halperin et al.,2022,Accuracy in Predicting Repetitions to Task Failure in Resistance Exercise: A Scoping Review and Exploratory Meta-analysis,Sports Medicine,52,377-390,10.1007/s40279-021-01559-x,,priors; app
+Harøy et al.,2019,The Adductor Strengthening Programme prevents groin problems among male football players: a cluster-randomised controlled trial,British Journal of Sports Medicine,53,150-157,10.1136/bjsports-2017-098937,,app
+Ishøi et al.,2016,Large eccentric strength increase using the Copenhagen Adduction exercise in football: A randomized controlled trial,Scandinavian Journal of Medicine & Science in Sports,26,1334-1342,10.1111/sms.12585,,app
+Jackson,2012,Comparison Between 1 Repetition Maximum Barbell and 1 Repetition Maximum Dumbell Bench Press,"Master's thesis, Arkansas State University",,,,https://arch.astate.edu/all-etd/866/,app
+Kubo et al.,2019,Effects of squat training with different depths on lower limb muscle volumes,European Journal of Applied Physiology,119,1933-1942,10.1007/s00421-019-04181-y,,app
+Morton et al.,2018,"A systematic review, meta-analysis and meta-regression of the effect of protein supplementation on resistance training-induced gains in muscle mass and strength in healthy adults",British Journal of Sports Medicine,52,376-384,10.1136/bjsports-2017-097608,,app
+Nunes et al.,2022,Systematic review and meta-analysis of protein intake to support muscle mass and function in healthy adults,"Journal of Cachexia, Sarcopenia and Muscle",13,795-810,10.1002/jcsm.12922,,app
+OpenPowerlifting,,"OpenPowerlifting data (OpenIPF subset, snapshot 2026-10-20)",Dataset,,,,https://openpowerlifting.gitlab.io/opl-csv/,priors; app; backtest
+Pelland et al.,2026,The Resistance Training Dose Response: Meta-Regressions Exploring the Effects of Weekly Volume and Frequency on Muscle Hypertrophy and Strength Gains,Sports Medicine,56,481-505,10.1007/s40279-025-02344-w,https://osf.io/6z3xu/,priors; app
+Robinson et al.,2024,"Exploring the Dose–Response Relationship Between Estimated Resistance Training Proximity to Failure, Strength Gain, and Muscle Hypertrophy: A Series of Meta-Regressions",Sports Medicine,54,2209-2231,10.1007/s40279-024-02069-2,https://osf.io/7knsj/,priors; app
+Saeterbakken et al.,2011,A comparison of muscle activity and 1-RM strength of three chest-press exercises with different stability requirements,Journal of Sports Sciences,29,533-538,10.1080/02640414.2010.543916,,app
+Schoenfeld & Aragon,2018,How much protein can the body use in a single meal for muscle-building? Implications for daily protein distribution,Journal of the International Society of Sports Nutrition,15,10,10.1186/s12970-018-0215-1,,app
+Schumann et al.,2022,Compatibility of Concurrent Aerobic and Strength Training for Skeletal Muscle Size and Function: An Updated Systematic Review and Meta-Analysis,Sports Medicine,52,601-612,10.1007/s40279-021-01587-7,,app
+Steele et al.,2023,Meta-analysis of variation in sport and exercise science: Examples of application within resistance training research,Journal of Sports Sciences,41,1617-1634,10.1080/02640414.2023.2286748,https://osf.io/2h9ma/,priors; app
+World Health Organization,2020,WHO Guidelines on Physical Activity and Sedentary Behaviour,World Health Organization,,,,https://www.who.int/publications/i/item/9789240015128,app
