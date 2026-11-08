@@ -17,6 +17,9 @@ Open source exercise plan generation based on Bayesian hierarchical modeling. Pl
 - Import Hevy or Strong data
 - Planning around sports (MMA, Muay Thai, etc.)
 - Uncertainty for weights
+- Customizable equipment (eg. create plans for full gyms, bodyweight, custom, ...)
+- Warm-up sets, plate loading, rest times
+- Previous sets shown while logging
 - English, French and Russian translations
 - Bodyweight logging
 - Estimated progress plots
@@ -57,10 +60,10 @@ npm run android
 Tests: `npm run typecheck`, `npm run lint`, `npm test`.
 
 ## Analysis
-We plot the results from a simulation of 90 users over 26 weeks, each with a known optimal weekly dose per muscle. Note, this uses the same priors as the app. Typical refers to typical responders. Atypical users respond much better or much worse than the population average (twice the usual spread; see [analysis/optimization](analysis/optimization) for details).
+We plot the results from a simulation of 90 users over 26 weeks, each with a known optimal weekly dose per muscle. Note, this uses the same priors as the app. Typical refers to typical responders. Atypical users respond much better or much worse than the population average (twice the usual spread; see [analysis/README.md](analysis/README.md) for details).
 <table>
 <tr>
-  <td><img width="100%" alt="Calibration of the app's perscribed weekly volumes." src="analysis/optimization/figures/calibration.png"/></td>
+  <td><img width="100%" alt="Calibration of the app's prescribed weekly volumes" src="analysis/optimization/figures/calibration.png"/></td>
   <td><img width="100%" alt="Failed sets, app vs. double progression" src="analysis/optimization/figures/failed.png"/></td>
 </tr>
 </table>
@@ -71,25 +74,27 @@ However, against fixed programmes (same users, exercises and starting weights), 
 
 <img width="100%" alt="App vs double and linear progression" src="analysis/optimization/figures/versus.png"/>
 
+References may be found at [analysis/references.csv](analysis/references.csv).
+
 ### Reproduction
-Requires Node 22 and Python with matplotlib and numpy. Each simulation takes about 40 minutes on around-average hardware.
+Requires Node 22 and [uv](https://docs.astral.sh/uv/). Each simulation takes about 40 minutes on around-average hardware.
 ```bash
 cd mobile
 export SIM_OBS=matched
 for l in app double linear; do SIM_LOADS=$l SIM_OUT=../analysis/optimization/results-$l.json npx jest --testMatch '**/__sim__/population.sim.ts'; done
 cd ../analysis/optimization
-python3 plots.py
-python3 versus.py
+uv run plots.py
+uv run versus.py
 ```
 
 ## Translations
 The app was made in English, text was translated using Google Translate, then briefly refined by hand. If there is an issue, open an issue or PR.
 
 ## Contributing
-Report bugs, suggest features by opening an issue. PRs welcome. AI can be used, but should be thoroughly checked by hand. User-facing strings should be done by hand and not via AI; inaccuracies in a fitness planning app may be consequential.
+Report bugs, suggest features by opening an [issue](https://github.com/I-naY-reversed/IronPlan-WorkoutPlanner/issues). PRs welcome. AI can be used, but should be thoroughly checked by hand. User-facing strings should be done by hand and not via AI; inaccuracies in a fitness planning app may be consequential.
 
-## License
-[MIT](mobile/docs/licenses)
+## Licenses
+[IronPlan](LICENSE); [third-party](mobile/docs/licenses)
 
 ## Privacy
 All models, data, notifications are entirely local. No data is sent to any server. The application can work entirely offline.
