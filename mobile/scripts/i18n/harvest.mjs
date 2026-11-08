@@ -1,11 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { launch } from '../../../store-listing/scripts/lib/cdp.mjs';
+import { launch } from '../lib/cdp.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const URL = 'http://localhost:8081';
-const csv = path.resolve(process.argv[2] ?? path.join(ROOT, '../store-listing/build/demo-history.csv'));
+const csv = path.resolve(process.argv[2] ?? path.join(ROOT, 'samples/strong-example.csv'));
 const ru = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/i18n/ru.json'), 'utf8'));
 const r = (en) => ru[en] ?? en;
 
