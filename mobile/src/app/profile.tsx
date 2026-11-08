@@ -208,9 +208,9 @@ export default function SettingsScreen() {
               options={LOAD_PREFERENCE_OPTIONS}
             />
             <Info title="Free weights or machines">
-              Both build the same muscle, but strength carries over best to the tool you train with. With free weights first,
-              the plan uses barbells, dumbbells and kettlebells where it can and fills gaps with your machines. Turn off what
-              your gym does not have below.
+              Both build similar muscle, but strength carries over best to the tool you train with. By default the plan has
+              no preference. With free weights first, it uses barbells, dumbbells and kettlebells where it can and fills gaps
+              with your machines. Turn off what your gym does not have below.
             </Info>
             {EQUIPMENT_KINDS.map((kind, i) => {
               const owned = profile.equipment.owned[kind];

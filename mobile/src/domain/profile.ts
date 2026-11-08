@@ -122,11 +122,11 @@ export const VOLUME_OPTIONS: { value: VolumePreference; label: string }[] = [
 ];
 export const VOLUME_FACTOR: Record<VolumePreference, number> = { less: 0.75, standard: 1, more: 1.25 };
 
-export const DEFAULT_LOAD_PREFERENCE: LoadPreference = 'free_weights';
+export const DEFAULT_LOAD_PREFERENCE: LoadPreference = 'any';
 export const loadPreferenceOf = (p: Pick<Profile, 'loadPreference'>): LoadPreference => p.loadPreference ?? DEFAULT_LOAD_PREFERENCE;
 export const LOAD_PREFERENCE_OPTIONS: { value: LoadPreference; label: string }[] = [
-  { value: 'free_weights', label: 'Free weights first' },
   { value: 'any', label: 'No preference' },
+  { value: 'free_weights', label: 'Free weights first' },
   { value: 'machines', label: 'Machines first' },
 ];
 
