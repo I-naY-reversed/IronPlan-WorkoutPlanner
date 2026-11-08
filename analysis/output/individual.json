@@ -1,0 +1,36 @@
+{
+  "source": "Steele et al. 2023, Polito et al. RT extracted data (github.com/jamessteeleii/Meta-Analysis-of-Variation-in-Resistance-Training), CC-BY 4.0",
+  "imputed_pre_post_r": 0.9420282837768856,
+  "fits": {
+    "hypertrophy": {
+      "n_comparisons": 425,
+      "n_studies": 90,
+      "sensitivity_reported_sds_only": {
+        "n": 42,
+        "sd_log_rho": 0.7951764089204989
+      },
+      "share_negative_ir_variance": 0.3788235294117647,
+      "sd_log_rho": 0.22617647505661506,
+      "sd_log_rho_boot": {
+        "median": 0.22923464368341606,
+        "low95": 0.13414999561349425,
+        "high95": 0.33467275251528567
+      }
+    },
+    "strength": {
+      "n_comparisons": 462,
+      "n_studies": 84,
+      "sensitivity_reported_sds_only": {
+        "n": 35,
+        "sd_log_rho": 0.4152637187167809
+      },
+      "share_negative_ir_variance": 0.2943722943722944,
+      "sd_log_rho": 0.18453038679253703,
+      "sd_log_rho_boot": {
+        "median": 0.18447064329377685,
+        "low95": 0.15043250421849516,
+        "high95": 0.23861274761612097
+      }
+    }
+  }
+}

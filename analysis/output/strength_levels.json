@@ -1,0 +1,155 @@
+{
+  "source": "Pelland et al. (OSF 6z3xu) and Steele et al. 2023 pre-training 1RMs; log(1RM/body mass) regression",
+  "n_groups": 858,
+  "between_group_sd": 0.46650469654338195,
+  "sex_gap_log": {
+    "upper": 0.4470519708073228,
+    "lower": 0.2685887694342204,
+    "source": "OpenPowerlifting raw SBD: male\u2212female median log(lift/bodyweight), bench and squat"
+  },
+  "beta_trained": {
+    "median": 0.22091882701495066,
+    "low95": 0.05969194220010002,
+    "high95": 0.4400101355404369,
+    "point": 0.26309856578906676
+  },
+  "beta_age_per_decade": {
+    "median": -0.106054715010442,
+    "low95": -0.145423291677786,
+    "high95": -0.055896809273345616,
+    "point": -0.10453968453837195
+  },
+  "exercises": {
+    "back_squat": {
+      "n_groups": 88,
+      "log_rel_intercept": 0.07387556283481603,
+      "intercept_se": 0.08517408999172638,
+      "within_group_cv": 0.17647058823529413,
+      "predictive_sd": 0.5059872785110929
+    },
+    "barbell_bench_press": {
+      "n_groups": 166,
+      "log_rel_intercept": -0.6165053723177413,
+      "intercept_se": 0.05339266863756354,
+      "within_group_cv": 0.19802195887967933,
+      "predictive_sd": 0.5095979838655359
+    },
+    "biceps_curl": {
+      "n_groups": 76,
+      "log_rel_intercept": -1.2029240421557261,
+      "intercept_se": 0.07519878388789666,
+      "within_group_cv": 0.22475514142467992,
+      "predictive_sd": 0.5232555423424384
+    },
+    "cable_row": {
+      "n_groups": 19,
+      "log_rel_intercept": -0.3328283269981553,
+      "intercept_se": 0.12058216487301758,
+      "within_group_cv": 0.1602295299050982,
+      "predictive_sd": 0.5077796693804364
+    },
+    "calf_raise": {
+      "n_groups": 2,
+      "log_rel_intercept": 0.2754681015202658,
+      "intercept_se": 0.11395121363304042,
+      "within_group_cv": 0.24262630255350143,
+      "predictive_sd": 0.5380325581935158
+    },
+    "chest_press_machine": {
+      "n_groups": 42,
+      "log_rel_intercept": -0.308600741086632,
+      "intercept_se": 0.16813595061135062,
+      "within_group_cv": 0.2569796954314721,
+      "predictive_sd": 0.5585113191772102
+    },
+    "deadlift": {
+      "n_groups": 2,
+      "log_rel_intercept": 0.10750725295842889,
+      "intercept_se": 0.11183948705334573,
+      "within_group_cv": 0.21545598704409732,
+      "predictive_sd": 0.525885905035051
+    },
+    "dumbbell_shoulder_press": {
+      "n_groups": 2,
+      "log_rel_intercept": -1.7625468822287544,
+      "intercept_se": 0.11123673068534518,
+      "within_group_cv": 0.50161441317514,
+      "predictive_sd": 0.6939864996205884
+    },
+    "hack_squat": {
+      "n_groups": 4,
+      "log_rel_intercept": -0.22579203220032104,
+      "intercept_se": 0.12039150108060927,
+      "within_group_cv": 0.5220849146553497,
+      "predictive_sd": 0.7104177669091328
+    },
+    "lat_pulldown": {
+      "n_groups": 56,
+      "log_rel_intercept": -0.4499005401099021,
+      "intercept_se": 0.10472589467049256,
+      "within_group_cv": 0.21052631578947367,
+      "predictive_sd": 0.52241312632002
+    },
+    "lateral_raise": {
+      "n_groups": 2,
+      "log_rel_intercept": -1.9177833426183906,
+      "intercept_se": 0.11395121363304028,
+      "within_group_cv": 0.3673531020757692,
+      "predictive_sd": 0.6046154253657164
+    },
+    "leg_curl": {
+      "n_groups": 38,
+      "log_rel_intercept": -0.49249888927014807,
+      "intercept_se": 0.23190654157518129,
+      "within_group_cv": 0.24107035838427424,
+      "predictive_sd": 0.5740402369293607
+    },
+    "leg_extension": {
+      "n_groups": 161,
+      "log_rel_intercept": 0.004140304935897491,
+      "intercept_se": 0.11030063636950518,
+      "within_group_cv": 0.21872816212438856,
+      "predictive_sd": 0.5269106861574013
+    },
+    "leg_press": {
+      "n_groups": 128,
+      "log_rel_intercept": 0.7165670052764402,
+      "intercept_se": 0.06648079122498682,
+      "within_group_cv": 0.19123929402855472,
+      "predictive_sd": 0.5085457649803734
+    },
+    "romanian_deadlift": {
+      "n_groups": 2,
+      "log_rel_intercept": -0.04305772017029954,
+      "intercept_se": 0.11123673068534487,
+      "within_group_cv": 0.4313742141175769,
+      "predictive_sd": 0.6450456997423935
+    },
+    "shoulder_press_machine": {
+      "n_groups": 40,
+      "log_rel_intercept": -0.8271759022925353,
+      "intercept_se": 0.20517897403944246,
+      "within_group_cv": 0.2133843120280864,
+      "predictive_sd": 0.5525015003641265
+    },
+    "triceps_pushdown": {
+      "n_groups": 30,
+      "log_rel_intercept": -0.9469308125867643,
+      "intercept_se": 0.29893917296385025,
+      "within_group_cv": 0.1918834841628959,
+      "predictive_sd": 0.5863535900153046
+    }
+  },
+  "opl_deadlift_to_squat": {
+    "M": {
+      "median_ratio": 1.1578947368421053,
+      "log_sd": 0.13712000928241,
+      "n": 407111
+    },
+    "F": {
+      "median_ratio": 1.2,
+      "log_sd": 0.14418599362282664,
+      "n": 198334
+    }
+  }
+}

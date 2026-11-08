@@ -1,0 +1,50 @@
+{
+  "source": "OpenPowerlifting openipf-latest (public domain), raw SBD",
+  "n_rows": 375534,
+  "fits": {
+    "F": {
+      "lifters": 22892,
+      "H": 0.2380081943264404,
+      "tau_years": 1.489545002093746,
+      "H_boot": {
+        "median": 0.2378410701245788,
+        "low95": 0.23073349111387637,
+        "high95": 0.24537075819593845
+      },
+      "tau_boot": {
+        "median": 1.4937907416967242,
+        "low95": 1.4071066877520146,
+        "high95": 1.5809365489865461
+      },
+      "lifters_long_careers": 6092,
+      "share_Hi_nonpositive": 0.05072225869993434,
+      "median_Hi_positive": 0.2318172234232344,
+      "sd_log_Hi": 0.7670230556642432,
+      "meet_noise_sigma": 0.04396761757323569,
+      "weekly_drift_q": 0.006664948592621958,
+      "n_consecutive_pairs": 91964
+    },
+    "M": {
+      "lifters": 46235,
+      "H": 0.1597092657205445,
+      "tau_years": 1.0051102883588556,
+      "H_boot": {
+        "median": 0.15974614664355485,
+        "low95": 0.15403545010127512,
+        "high95": 0.16530380464341582
+      },
+      "tau_boot": {
+        "median": 1.0058392531366338,
+        "low95": 0.9385176006949858,
+        "high95": 1.0933140872889604
+      },
+      "lifters_long_careers": 13150,
+      "share_Hi_nonpositive": 0.11596958174904944,
+      "median_Hi_positive": 0.15760541266142036,
+      "sd_log_Hi": 0.9427772021533947,
+      "meet_noise_sigma": 0.07024229680701839,
+      "weekly_drift_q": 0.0,
+      "n_consecutive_pairs": 160462
+    }
+  }
+}

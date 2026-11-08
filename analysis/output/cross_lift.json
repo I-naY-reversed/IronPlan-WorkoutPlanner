@@ -1,0 +1,92 @@
+{
+ "M": {
+  "deadlift/squat": {
+   "median_ratio": 1.1791044776119406,
+   "log_sd": 0.13933021290503775,
+   "log_mad_sd": 0.11363827374783812
+  },
+  "bench/squat": {
+   "median_ratio": 0.6666666666666665,
+   "log_sd": 0.17696770368323012,
+   "log_mad_sd": 0.145947251952928
+  },
+  "bench/deadlift": {
+   "median_ratio": 0.5625000000000001,
+   "log_sd": 0.17732140469192964,
+   "log_mad_sd": 0.1534846347351885
+  },
+  "residual_sd_after_bodyweight": {
+   "squat": 0.24868184197080342,
+   "bench": 0.23386569486715214,
+   "deadlift": 0.2118266651660789
+  },
+  "residual_corr": {
+   "squat_bench": 0.7329146284962705,
+   "squat_deadlift": 0.8396465522218829,
+   "bench_deadlift": 0.7034508123472321
+  },
+  "n_lifters": 157381
+ },
+ "F": {
+  "deadlift/squat": {
+   "median_ratio": 1.2222222222222228,
+   "log_sd": 0.15492815244287722,
+   "log_mad_sd": 0.13639759656909003
+  },
+  "bench/squat": {
+   "median_ratio": 0.5555555555555556,
+   "log_sd": 0.18664749134507275,
+   "log_mad_sd": 0.15707936175670753
+  },
+  "bench/deadlift": {
+   "median_ratio": 0.4500000000000001,
+   "log_sd": 0.17510096490902805,
+   "log_mad_sd": 0.15620750051429397
+  },
+  "residual_sd_after_bodyweight": {
+   "squat": 0.26546218675029554,
+   "bench": 0.24586633199471175,
+   "deadlift": 0.2136545249805684
+  },
+  "residual_corr": {
+   "squat_bench": 0.736304218232972,
+   "squat_deadlift": 0.8149015998731356,
+   "bench_deadlift": 0.7194932364639617
+  },
+  "n_lifters": 69463
+ },
+ "coverage_holdout": {
+  "M deadlift_from_squat": {
+   "within_1sd": 0.7692610762309041,
+   "within_2sd": 0.9637655372257949
+  },
+  "M bench_from_squat": {
+   "within_1sd": 0.764952593985918,
+   "within_2sd": 0.9628377519636003
+  },
+  "M squat_from_deadlift": {
+   "within_1sd": 0.7692610762309041,
+   "within_2sd": 0.9637655372257949
+  },
+  "M bench_from_deadlift": {
+   "within_1sd": 0.7470577768739991,
+   "within_2sd": 0.9627869144149869
+  },
+  "F deadlift_from_squat": {
+   "within_1sd": 0.7344680356676058,
+   "within_2sd": 0.9589590171076708
+  },
+  "F bench_from_squat": {
+   "within_1sd": 0.7294432019518429,
+   "within_2sd": 0.9530918702256819
+  },
+  "F squat_from_deadlift": {
+   "within_1sd": 0.7344680356676058,
+   "within_2sd": 0.9589590171076708
+  },
+  "F bench_from_deadlift": {
+   "within_1sd": 0.7088210520200994,
+   "within_2sd": 0.9566644398617444
+  }
+ }
+}
