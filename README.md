@@ -8,22 +8,44 @@
 
 **The weight for every set, and why.**
 
-Open source exercise plan generation based on Bayesian hierarchical modeling. Plans update after data is collected to be further refined for user target (e.g. for MMA, Powerlifting, General Health). Optimizes exercises and weight. Volume optimization is experimental.
+Starting weights and plans come from a model fitted to published training studies and powerlifting results, then updated from your own logs. Volume adjustment is experimental.
 
 <img width="100%" alt="IronPlan: the weight for every set, and why." src="marketing/featureGraphic.png" />
 
 ## Features
+<details open>
+<summary><b>Planning</b></summary>
+
 - Automatic, highly customizable plan generation
-- Import Hevy or Strong data
 - Planning around sports (MMA, Muay Thai, etc.)
+- Customizable equipment (e.g. create plans for full gyms, bodyweight, custom, ...)
+- Choice of split (PPL, upper/lower, full body, custom) and weekly volume
+- Lift goals with the chance of reaching them by a date
+- Import Hevy or Strong data
+
+</details>
+
+<details open>
+<summary><b>In the gym</b></summary>
+
 - Uncertainty for weights
-- Customizable equipment (eg. create plans for full gyms, bodyweight, custom, ...)
 - Warm-up sets, plate loading, rest times
 - Previous sets shown while logging
-- English, French and Russian translations
+- Exercise swaps; shorter or lighter days
+- RPE/RIR per set, drop sets, e1RM tracking
+- Instructions for performing exercises and common faults
+
+</details>
+
+<details>
+<summary><b>Other</b></summary>
+
 - Bodyweight logging
 - Estimated progress plots
+- English, French and Russian translations
 - Fully offline, no account
+
+</details>
 
 ## Gallery
 
