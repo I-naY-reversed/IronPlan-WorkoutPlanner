@@ -3,10 +3,23 @@
 ![Release](https://img.shields.io/github/v/release/I-naY-reversed/IronPlan-WorkoutPlanner?include_prereleases)
 ![Platform](https://img.shields.io/badge/platform-Android-3DDC84)
 ![Expo](https://img.shields.io/badge/Expo-SDK%2058-000020)
+![License](https://img.shields.io/github/license/I-naY-reversed/IronPlan-WorkoutPlanner)
+
+**The weight for every set, and why.**
 
 Open source exercise plan generation based on Bayesian hierarchical modeling. Plans update after data is collected to be further refined for user target (e.g. for MMA, Powerlifting, General Health). Optimizes exercises and weight. Volume optimization is experimental.
 
 <img width="100%" alt="IronPlan: the weight for every set, and why." src="marketing/featureGraphic.png" />
+
+## Features
+- Automatic, highly customizable plan generation
+- Import Hevy or Strong data
+- Planning around sports (MMA, Muay Thai, etc.)
+- Uncertainty for weights
+- English, French and Russian translations
+- Bodyweight logging
+- Estimated progress plots
+- Fully offline, no account
 
 <table>
   <tr>
@@ -26,6 +39,8 @@ Android only for now. Get the APK from [Releases](https://github.com/I-naY-rever
 
 Current releases are pre-releases.
 
+<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22app.bracket.training%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2FI-naY-reversed%2FIronPlan-WorkoutPlanner%22%2C%22author%22%3A%22I-naY-reversed%22%2C%22name%22%3A%22IronPlan%22%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Atrue%7D%22%7D"><img height="40" alt="Get it on Obtainium" src="marketing/badge_obtainium.png" /></a>
+
 ### Build from source
 Requires Node 22.
 
@@ -43,7 +58,7 @@ We plot the results from a simulation of 90 users over 26 weeks, each with a kno
 <table>
 <tr>
   <td><img width="100%" alt="Calibration of the app's ranges" src="analysis/optimization/figures/calibration.png"/></td>
-  <td><img width="100%" alt="Failed reps, app vs. double progression" src="analysis/optimization/figures/failed.png"/></td>
+  <td><img width="100%" alt="Failed sets, app vs. double progression" src="analysis/optimization/figures/failed.png"/></td>
 </tr>
 </table>
 
@@ -63,6 +78,15 @@ cd ../analysis/optimization
 python3 plots.py
 python3 versus.py
 ```
+
+## Translations
+The app was made in English, text was translated using Google Translate, then briefly refined by hand. If there is an issue, open an issue or PR.
+
+## Contributing
+Report bugs, suggest features by opening an issue. PRs welcome. AI can be used, but should be thoroughly checked by hand. User-facing strings should be done by hand and not via AI.
+
+## License
+[MIT](mobile/docs/licenses)
 
 ## Privacy
 All models, data, notifications are entirely local. No data is sent to any server. The application can work entirely offline.
