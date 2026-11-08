@@ -13,9 +13,19 @@ describe('evidence library', () => {
     }
   });
 
-  it('links every study and keeps topic ids unique', () => {
-    for (const s of Object.values(STUDIES)) expect(s.url).toMatch(/^https:\/\//);
+  it('links every study by its DOI and keeps topic ids unique', () => {
+    for (const s of Object.values(STUDIES)) expect(s.url).toMatch(/^https:\/\/doi\.org\/10\.\d{4,}\/\S+$/);
+    expect(new Set(Object.values(STUDIES).map((s) => s.url)).size).toBe(Object.keys(STUDIES).length);
     expect(new Set(TOPICS.map((t) => t.id)).size).toBe(TOPICS.length);
+  });
+
+  it('cites each study with the year in its id', () => {
+    for (const [id, s] of Object.entries(STUDIES)) expect(id).toContain(s.cite.slice(-4));
+  });
+
+  it('only annotates exercises the cited studies tested', () => {
+    expect(EXERCISE_EVIDENCE.pull_up).toBeUndefined();
+    expect(EXERCISE_EVIDENCE.lateral_raise).toBeUndefined();
   });
 
   it('writes without em dashes', () => {
