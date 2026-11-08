@@ -4,6 +4,7 @@
 ![Platform](https://img.shields.io/badge/platform-Android-3DDC84)
 ![Expo](https://img.shields.io/badge/Expo-SDK%2058-000020)
 ![License](https://img.shields.io/github/license/I-naY-reversed/IronPlan-WorkoutPlanner)
+![Languages](https://img.shields.io/badge/languages-EN%20%7C%20FR%20%7C%20RU-blue)
 
 **The weight for every set, and why.**
 
@@ -20,6 +21,8 @@ Open source exercise plan generation based on Bayesian hierarchical modeling. Pl
 - Bodyweight logging
 - Estimated progress plots
 - Fully offline, no account
+
+## Gallery
 
 <table>
   <tr>
@@ -57,12 +60,12 @@ Tests: `npm run typecheck`, `npm run lint`, `npm test`.
 We plot the results from a simulation of 90 users over 26 weeks, each with a known optimal weekly dose per muscle. Note, this uses the same priors as the app. Typical refers to typical responders. Atypical users respond much better or much worse than the population average (twice the usual spread; see [analysis/optimization](analysis/optimization) for details).
 <table>
 <tr>
-  <td><img width="100%" alt="Calibration of the app's ranges" src="analysis/optimization/figures/calibration.png"/></td>
+  <td><img width="100%" alt="Calibration of the app's perscribed weekly volumes." src="analysis/optimization/figures/calibration.png"/></td>
   <td><img width="100%" alt="Failed sets, app vs. double progression" src="analysis/optimization/figures/failed.png"/></td>
 </tr>
 </table>
 
-The error bars are accurate for typical users: 68% ranges contained the true value 67% of the time, and 95% ranges 98% of the time. For atypical users they are too narrow (70% at 95%). Volume prescription is still a work in progress. The app did not beat the research default, and deliberately raising and lowering volume did not help it learn a user's response to volume within 26 weeks.
+The error bars are accurate for typical users (in reference to weekly volume): 68% ranges contained the true value 67% of the time, and 95% ranges 98% of the time. For atypical users they are too narrow (70% at 95%). Volume prescription is still a work in progress. The app did not beat the research default, and deliberately raising and lowering volume did not help it learn a user's response to volume within 26 weeks.
 
 However, against fixed programmes (same users, exercises and starting weights), the app reached the target effort about **two weeks sooner** and had less than **half the failed sets** of double progression (7% vs 17%), with the same strength gains.
 
@@ -83,7 +86,7 @@ python3 versus.py
 The app was made in English, text was translated using Google Translate, then briefly refined by hand. If there is an issue, open an issue or PR.
 
 ## Contributing
-Report bugs, suggest features by opening an issue. PRs welcome. AI can be used, but should be thoroughly checked by hand. User-facing strings should be done by hand and not via AI.
+Report bugs, suggest features by opening an issue. PRs welcome. AI can be used, but should be thoroughly checked by hand. User-facing strings should be done by hand and not via AI; inaccuracies in a fitness planning app may be consequential.
 
 ## License
 [MIT](mobile/docs/licenses)
