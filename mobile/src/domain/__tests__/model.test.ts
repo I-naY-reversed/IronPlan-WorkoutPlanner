@@ -75,6 +75,7 @@ describe('fitSeries', () => {
       const s = summarize(post, (p) => p.rho, CENTRAL_80);
       if (truth.rho >= s.low && truth.rho <= s.high) covered++;
     }
+    // A calibrated 80% interval covers Binomial(30, 0.8) users; 18–29 of 30 holds 99.6% of the time.
     expect(covered / users).toBeGreaterThanOrEqual(0.6);
     expect(covered / users).toBeLessThanOrEqual(0.97);
   });

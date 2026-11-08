@@ -1,4 +1,5 @@
 /// <reference types="node" />
+// Input: analysis/output/opl_backtest_input.json (committed), from analysis/scripts/backtest_opl_data.py.
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
